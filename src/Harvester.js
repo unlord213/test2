@@ -17,13 +17,17 @@ class Harvester {
      *   else
      *     move
      */
-    console.log('test', _.sum(this.creep.carry), this.creep.carryCapacity);
     if (_.sum(this.creep.carry) === this.creep.carryCapacity) {
-      console.log('in');
       this.creep.memory.action = new IdleActionInfo(true);
-      this.creep.foo('bar');
       return;
     }
+    if (this.creep.pos === this.creep.memory.action.position) {
+      const source = Game.getObjectById(this.creep.memory.action.sourceId);
+      this.creep.harvest(source);
+      return;
+    }
+
+    this.creep.moveTo(this.creep.memory.action.position);
   }
 }
 
