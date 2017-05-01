@@ -1,3 +1,10 @@
 {
-  "esversion":6
+
+  "esversion": 6,
+  "strict": false,
+  "node": true,
+  "globals": {
+    "module": false,
+    "require": false
+  }
 }
