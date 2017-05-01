@@ -12,8 +12,8 @@ class Harvester {
      * if harvesting
      *   stop harvesting if necessary
      *
-     *   if at havest position
-     *     harvset
+     *   if at harvest position
+     *     harvest
      *   else
      *     move
      */
@@ -21,6 +21,7 @@ class Harvester {
       this.creep.memory.action = new IdleActionInfo(true);
       return;
     }
+
     if (this.creep.pos === this.creep.memory.action.position) {
       const source = Game.getObjectById(this.creep.memory.action.sourceId);
       this.creep.harvest(source);
