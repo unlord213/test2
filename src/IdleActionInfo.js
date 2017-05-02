@@ -5,9 +5,10 @@ const Actions = require('./Actions');
 
 class IdleActionInfo extends ActionInfo {
   constructor(full) {
-    super(Actions.IDLE);
+    super(IdleActionInfo.id);
     this.full = full;
   }
 }
+IdleActionInfo.id = Actions.IDLE
 
 module.exports = IdleActionInfo;

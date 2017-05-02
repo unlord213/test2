@@ -1,5 +1,13 @@
+const credentials = require('./.screeps');
+
 module.exports = function(grunt) {
   grunt.initConfig({
+    screeps: {
+      options: credentials,
+      dist: {
+        src: ['src/*.js']
+      }
+    },
     mochaTest: {
       test: {
         options: {
@@ -9,7 +17,6 @@ module.exports = function(grunt) {
         src: ['test/*.js']
       },
     },
-
     watch: {
       js: {
         options: {
@@ -81,6 +88,7 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-screeps');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-uglify');
