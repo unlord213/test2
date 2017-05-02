@@ -4,11 +4,11 @@ const ActionInfo = require('./ActionInfo');
 const Actions = require('./Actions');
 
 class HarvestActionInfo extends ActionInfo {
-  constructor(sourceId, position, harvesting) {
+  constructor(sourceId, accessPointId) {
     super(HarvestActionInfo.id);
     this.sourceId = sourceId;
-    this.position = position;
-    this.harvesting = harvesting;
+    this.accessPointId = accessPointId;
+    this.harvesting = false;
   }
 }
 HarvestActionInfo.id = Actions.HARVESTING
