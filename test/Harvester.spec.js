@@ -12,8 +12,8 @@ let creep;
 let harvester;
 const sourceId = 'foobar';
 
-desc("Harvester", function() {
-  beforeEach(function() {
+desc('Harvester', () => {
+  beforeEach(() => {
     creep = {
       carry: [0],
       carryCapacity: 1,
@@ -31,34 +31,29 @@ desc("Harvester", function() {
     Memory.my = {};
   });
 
-  desc("test", function() {
-    it("should", function() {
-      Memory.my.sourceInfos = {
-        'sourceid1': {
-          'mapped': true,
-          'accessPoints': {
-            '0': {
-              roomPosition: new RoomPosition(0, 0, 'name'),
-              creepId: 'creepId1'
-            },
-            '1': {
-              roomPosition: new RoomPosition(0, 1, 'name'),
-              creepId: null
-            }
-          }
-        },
-        'sourceid2': {
-          'mapped': false,
-          'accessPoints': {
-            '0': {
-              roomPosition: new RoomPosition(0, 0, 'name'),
-              creepId: null
-            }
-          }
-        }
-      }
+  desc('run', () => {
+    let findTarget;
+    let harvest;
 
-      harvester.findTarget();
+    beforeEach(() => {
+      findTarget = sandbox.stub(harvester, 'findTarget');
+      harvest = sandbox.stub(harvester, 'harvest');
+    })
+
+    it('should find target', () => {
+      creep.memory.actionInfo.id = IdleActionInfo.id;
+      harvester.run();
+
+      expect(findTarget).to.have.been.called;
+      expect(harvest).to.not.have.been.called;
+    })
+
+    it('should harvest', () => {
+      creep.memory.actionInfo.id = HarvestActionInfo.id;
+      harvester.run();
+
+      expect(findTarget).to.not.have.been.called;
+      expect(harvest).to.have.been.called;
     })
   })
 

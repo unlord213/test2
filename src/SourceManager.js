@@ -1,3 +1,5 @@
+"use strict";
+
 class SourceManager {}
 SourceManager.getOpenAccessPoint = function() {
   for (const sourceId of Object.keys(Memory.my.sourceInfos)) {
@@ -25,17 +27,26 @@ SourceManager.getUnmappedSource = function() {
   }
 }
 
-SourceManager.getAccesPointPosition(sourceId, accessPointId) {
-    return Memory.my.sourceInfos[sourceId].accessPoints[accessPointId].roomPosition;
+SourceManager.getAccesPointPosition = function(sourceId, accessPointId) {
+  const sourceInfo = Memory.my.sourceInfos[sourceId];
+  if (!sourceInfo) {
+    return;
+  }
+
+  const accessPoint = sourceInfo.accessPoints[accessPointId];
+  if (!accessPoint) {
+    return;
+  }
+
+  return accessPoint.roomPosition;
 }
 
-SourceManager.getSourceInfo(sourceId) {
+SourceManager.getSourceInfo = function(sourceId) {
   return Memory.my.sourceInfos[sourceId];
 }
 
-SourceManager.getSource(sourceId) {
+SourceManager.getSource = function(sourceId) {
   return Game.getObjectById(sourceId);
 }
-
 
 module.exports = SourceManager;

@@ -33,8 +33,32 @@ class Harvester {
     }
 
     if (actionInfo.harvesting) {
-      const source = Game.getObjectById(actionInfo.sourceId);
+      const source = SourceManager.getSource(actionInfo.sourceId);
       this.creep.harvest(source);
+      return;
+    }
+
+    if (null === actionInfo.accessPointId) {
+      const source = SourceManager.getSource(actionInfo.sourceId);
+      const returnValue = this.creep.harvest(source);
+
+      if (OK === returnValue) {
+        const sourceInfo = SourceManager.getSourceInfo(actionInfo.sourceId);
+        const accessPointId = Object.keys(sourceInfo).size();
+        sourceInfo[accessPointId] = {
+          roomPoisition: this.creep.pos,
+          creepId: this.creep.id
+        }
+        return;
+      }
+
+      if (ERR_NOT_IN_RANGE === returnValue) {
+        this.creep.moveTo(source);
+        return;
+      }
+
+      console.log("Unknown error harvesting:", returnValue);
+      return;
     }
 
     if (this.creep.pos === SourceManager.getAccesPointPosition(actionInfo.sourceId, actionInfo.accessPointId)) {

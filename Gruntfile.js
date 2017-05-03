@@ -28,6 +28,14 @@ module.exports = function(grunt) {
         tasks: ['mochaTest']
       }
     },
+    mocha_istanbul: {
+      coverage: {
+        src: 'test', // a folder works nicely
+        options: {
+          mask: '*.spec.js'
+        }
+      }
+    },
     uglify: {
       options: {
         mangle: false,
@@ -93,8 +101,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-regex-replace');
+  grunt.loadNpmTasks('grunt-mocha-istanbul');
 
   // grunt.registerTask('default', ['mochaTest']);
   grunt.registerTask('test', ['mochaTest']);
   grunt.registerTask('prepare', ['uglify', 'regex-replace']);
+  grunt.registerTask('coverage', ['mocha_istanbul:coverage']);
 };
