@@ -11,7 +11,7 @@ class Harvester {
 
   run() {
     if (this.creep.memory.actionInfo.id === IdleActionInfo.id) {
-      this.findTarget();
+      this.findSource();
       return;
     }
 
@@ -43,13 +43,23 @@ class Harvester {
       const returnValue = this.creep.harvest(source);
 
       if (OK === returnValue) {
-        const sourceInfo = SourceManager.getSourceInfo(actionInfo.sourceId);
-        const accessPointId = Object.keys(sourceInfo).size();
-        sourceInfo[accessPointId] = {
-          roomPoisition: this.creep.pos,
-          creepId: this.creep.id
+        const accessPointId = SourceManager.getAccessPointId(actionInfo.sourceId, this.creep.pos);
+
+        if (!accessPointId) {
+          const sourceInfo = SourceManager.getSourceInfo(actionInfo.sourceId);
+          const newAccessPointId = Object.keys(sourceInfo).size();
+          sourceInfo.accessPoints[newAccessPointId] = {
+            roomPoisition: this.creep.pos,
+            creepId: this.creep.id
+          }
+          return;
         }
-        return;
+
+        const sourceInfo = SourceManager.getSourceInfo(actionInfo.sourceId);
+        const prevCreepId = sourceInfo.accessPoints[accessPointId];
+        Game.getObjectById(prevCreepId).memory.actionInfo = new IdleActionInfo(false);
+
+        sourceInfo.accessPoints[accessPointId].creepId = this.creep.id;
       }
 
       if (ERR_NOT_IN_RANGE === returnValue) {
@@ -82,10 +92,7 @@ class Harvester {
     this.creep.moveTo(source);
   }
 
-
-
-
-  findTarget() {
+  findSource() {
     const openAccessPoint = SourceManager.getOpenAccessPoint();
     if (openAccessPoint) {
       const actionInfo = new HarvestActionInfo(openAccessPoint.sourceId, openAccessPoint.accessPointId);
@@ -94,7 +101,7 @@ class Harvester {
     }
 
     const unmappedSourceId = SourceManager.getUnmappedSource();
-    if (unmappedSource) {
+    if (unmappedSourceId) {
       const actionInfo = new HarvestActionInfo(unmappedSourceId, null);
       this.creep.memory.actionInfo = actionInfo;
       return;
@@ -102,37 +109,6 @@ class Harvester {
 
     console.log(this.creep.name + " has nowhere to go");
     this.creep.moveTo(Game.structures["Spawn1"]);
-
-    // const openAccessPoints = _.forEach(Memory.my.sourceInfos, function(sourceInfo) {
-    //   _.pickBy(sourceInfo.accessPoints, function(accessPoint, accessPointId) {
-    //     console.log(JSON.stringify(accessPoint), accessPointId);
-    //     return accessPoint.creepId;
-    //   });
-    //   // return sourceInfo.mapped;
-    // });
-    //
-    // console.log(JSON.stringify(openAccessPoints));
-    // // if(openAccessPoints.length) {
-    // //
-    // // }
-
-    // for (let [sourceId, sourceInfo] of Memory.my.sourceInfos.entries()) {
-    //   if (sourceInfo.openSpots.length) {
-    //     const actionInfo = new HarvestActionInfo(sourceId, sourceInfo.openSpots[0], false);
-    //     this.creep.memory.actionInfo = actionInfo;
-    //     sourceInfo.openSpots.shift();
-    //     return;
-    //   }
-    //
-    //   if (!sourceInfo.mapped) {
-    //     const actionInfo = new HarvestActionInfo(sourceId, null, false);
-    //     this.creep.memory.actionInfo = actionInfo;
-    //     return;
-    //   }
-    // }
-    //
-    // console.log(this.creep.name + " has nowhere to go");
-    // this.creep.moveTo(Game.structures["Spawn1"]);
   }
 }
 

@@ -6,7 +6,7 @@ const IdleActionInfo = require('../src/IdleActionInfo');
 const HarvestActionInfo = require('../src/HarvestActionInfo');
 const Harvester = require("../src/Harvester");
 const SourceInfo = require("../src/SourceInfo");
-// const RoomPosition = require("../src/RoomPosition");
+const SourceManager = require("../src/SourceManager");
 
 let creep;
 let harvester;
@@ -15,6 +15,7 @@ const sourceId = 'foobar';
 desc('Harvester', () => {
   beforeEach(() => {
     creep = {
+      name: 'cname',
       carry: [0],
       carryCapacity: 1,
       memory: {
@@ -32,11 +33,11 @@ desc('Harvester', () => {
   });
 
   desc('run', () => {
-    let findTarget;
+    let findSource;
     let harvest;
 
     beforeEach(() => {
-      findTarget = sandbox.stub(harvester, 'findTarget');
+      findSource = sandbox.stub(harvester, 'findSource');
       harvest = sandbox.stub(harvester, 'harvest');
     })
 
@@ -44,7 +45,7 @@ desc('Harvester', () => {
       creep.memory.actionInfo.id = IdleActionInfo.id;
       harvester.run();
 
-      expect(findTarget).to.have.been.called;
+      expect(findSource).to.have.been.called;
       expect(harvest).to.not.have.been.called;
     })
 
@@ -52,8 +53,66 @@ desc('Harvester', () => {
       creep.memory.actionInfo.id = HarvestActionInfo.id;
       harvester.run();
 
-      expect(findTarget).to.not.have.been.called;
+      expect(findSource).to.not.have.been.called;
       expect(harvest).to.have.been.called;
+    })
+  })
+
+  desc('run', () => {
+    let getOpenAccessPoint;
+    let getUnmappedSource;
+
+    beforeEach(() => {
+      getOpenAccessPoint = sandbox.stub(SourceManager, 'getOpenAccessPoint');
+      getUnmappedSource = sandbox.stub(SourceManager, 'getUnmappedSource');
+    })
+
+    it('should find open access point', () => {
+      const sourceId = 'foo';
+      const accessPointId = '0';
+      const openAccessPoint = {
+        sourceId: sourceId,
+        accessPointId: accessPointId
+      };
+      getOpenAccessPoint.returns(openAccessPoint);
+
+      harvester.findSource();
+
+      expect(SourceManager.getOpenAccessPoint).to.have.been.called;
+      expect(SourceManager.getUnmappedSource).to.not.have.been.called;
+      expect(creep.memory.actionInfo).to.eql(new HarvestActionInfo(sourceId, accessPointId));
+    })
+
+    it('should find unmapped source', () => {
+      const unmappedSourceId = 'foo';
+      getUnmappedSource.returns(unmappedSourceId);
+      getOpenAccessPoint.returns(undefined);
+
+      harvester.findSource();
+
+      expect(SourceManager.getOpenAccessPoint).to.have.been.called;
+      expect(SourceManager.getUnmappedSource).to.have.been.called;
+      expect(creep.memory.actionInfo).to.eql(new HarvestActionInfo(unmappedSourceId, null));
+
+    })
+
+    it('should move to spawn', () => {
+      const spawn = {
+        foo: 'bar'
+      }
+      Game.structures['Spawn1'] = spawn;
+
+      const log = sandbox.stub(console, 'log');
+
+      getUnmappedSource.returns(undefined);
+      getOpenAccessPoint.returns(undefined);
+
+      harvester.findSource();
+
+      expect(SourceManager.getOpenAccessPoint).to.have.been.called;
+      expect(SourceManager.getUnmappedSource).to.have.been.called;
+      expect(creep.moveTo).to.have.been.calledWith(spawn);
+      expect(console.log).to.have.been.calledWith(creep.name + " has nowhere to go");
     })
   })
 

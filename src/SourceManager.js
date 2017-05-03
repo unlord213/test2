@@ -41,6 +41,16 @@ SourceManager.getAccesPointPosition = function(sourceId, accessPointId) {
   return accessPoint.roomPosition;
 }
 
+SourceManager.getAccessPointId = function(sourceId, pos) {
+  const accessPoints = Memory.my.sourceInfos[sourceId].accessPoints;
+    for (const accessPointId of Object.keys(accessPoints)) {
+      const accessPoint = accessPoints[accessPointId];
+      if(_.isEqual(accessPoint.roomPoisition, pos)) {
+        return accessPointId;
+      }
+    }
+}
+
 SourceManager.getSourceInfo = function(sourceId) {
   return Memory.my.sourceInfos[sourceId];
 }
