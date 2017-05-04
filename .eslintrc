@@ -23,6 +23,10 @@
 	},
 	"globals": {
 		"_": false,
+    "describe": false,
+    "desc": false,
+    "it": false,
+		"sandbox": false,
     "Memory": false,
 		"Game": false,
 		"RoomPosition": false,

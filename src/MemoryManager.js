@@ -50,14 +50,14 @@ MemoryManager.initSourceInfo = (source) => {
 	const y = source.pos.y;
 
 	const testPoints = [
-		new RoomPosition(x, y, roomName),
-		new RoomPosition(x, y, roomName),
-		new RoomPosition(x, y, roomName),
-		new RoomPosition(x, y, roomName),
-		new RoomPosition(x, y, roomName),
-		new RoomPosition(x, y, roomName),
-		new RoomPosition(x, y, roomName),
-		new RoomPosition(x, y, roomName),
+		new RoomPosition(x + 1, y + 1, roomName),
+		new RoomPosition(x + 1, y, roomName),
+		new RoomPosition(x + 1, y - 1, roomName),
+		new RoomPosition(x, y + 1, roomName),
+		new RoomPosition(x, y - 1, roomName),
+		new RoomPosition(x - 1, y + 1, roomName),
+		new RoomPosition(x - 1, y, roomName),
+		new RoomPosition(x - 1, y - 1, roomName),
 	];
 
 	const sourceInfo = {
