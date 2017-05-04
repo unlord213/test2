@@ -23,46 +23,49 @@ desc('MemoryManager', () => {
         find: find
       }
     }
-  })
+  });
 
-  it('should init sources with my', () => {
-    Memory.my = {};
-    MemoryManager.initSources();
+  it('should init room infos', () => {
 
-    expect(Game.spawns['Spawn1'].room.find).to.have.been.calledWith(FIND_SOURCES);
-    expect(Memory).to.eql({
-      my: {
-        sourceInfos: {
-          '1': new SourceInfo(),
-          '2': new SourceInfo()
-        }
-      }
-    });
-  })
-
-  it('should init sources', () => {
-    MemoryManager.initSources();
-
-    expect(Game.spawns['Spawn1'].room.find).to.have.been.calledWith(FIND_SOURCES);
-    expect(Memory).to.eql({
-      my: {
-        sourceInfos: {
-          '1': new SourceInfo(),
-          '2': new SourceInfo()
-        }
-      }
-    });
-  })
-
-  it('should not init if source infos present', () => {
-    const sourceInfos = ['1', '2'];
-    Memory.my = {
-      sourceInfos:sourceInfos
-    }
-
-    MemoryManager.initSources();
-
-    expect(Memory.my.sourceInfos).to.eql(sourceInfos);
-    expect(Game.spawns['Spawn1'].room.find).to.not.have.been.called
-  })
-})
+  });
+  // it('should init sources with my', () => {
+  //   Memory.my = {};
+  //   MemoryManager.initSources();
+  //
+  //   expect(Game.spawns['Spawn1'].room.find).to.have.been.calledWith(FIND_SOURCES);
+  //   expect(Memory).to.eql({
+  //     my: {
+  //       sourceInfos: {
+  //         '1': new SourceInfo(),
+  //         '2': new SourceInfo()
+  //       }
+  //     }
+  //   });
+  // })
+  //
+  // it('should init sources', () => {
+  //   MemoryManager.initSources();
+  //
+  //   expect(Game.spawns['Spawn1'].room.find).to.have.been.calledWith(FIND_SOURCES);
+  //   expect(Memory).to.eql({
+  //     my: {
+  //       sourceInfos: {
+  //         '1': new SourceInfo(),
+  //         '2': new SourceInfo()
+  //       }
+  //     }
+  //   });
+  // })
+  //
+  // it('should not init if source infos present', () => {
+  //   const sourceInfos = ['1', '2'];
+  //   Memory.my = {
+  //     sourceInfos:sourceInfos
+  //   }
+  //
+  //   MemoryManager.initSources();
+  //
+  //   expect(Memory.my.sourceInfos).to.eql(sourceInfos);
+  //   expect(Game.spawns['Spawn1'].room.find).to.not.have.been.called
+  // })
+});
