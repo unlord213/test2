@@ -1,5 +1,7 @@
 'use strict';
 
+const Position = require('../src/Position');
+
 /**
  *	Memory = {
  *		roomInfos: {
@@ -8,7 +10,7 @@
  *					sourcdId0: {
  *						accessPoints: {
  *							'0': {
- *								pos: new RoomPosition(x0, y0, 'roomName0'),
+ *								pos: new Position(x0, y0),
  *							 	creepId: 'creep0'
  *						  }
  *					  }
@@ -26,20 +28,21 @@ MemoryManager.initRoomInfos = () => {
 	}
 
 	_.forIn(Game.rooms, (room, roomName) => {
-		let roomInfo = Memory.roomInfos[roomName];
-		if (roomInfo) {
+		if (Memory.roomInfos[roomName]) {
 			return;
 		}
 
-		roomInfo.sourceInfos = MemoryManager.initSourceInfos(room);
+		Memory.roomInfos[roomName] = {
+			sourceInfos: MemoryManager.initSourceInfos(room)
+		};
 	});
 };
 
 MemoryManager.initSourceInfos = (room) => {
 	const sourceInfos = {};
-	room.find(FIND_SOURCES).every((source) => {
+	for(const source of room.find(FIND_SOURCES)) {
 		sourceInfos[source.id] = MemoryManager.initSourceInfo(source);
-	});
+	}
 
 	return sourceInfos;
 };
@@ -50,27 +53,28 @@ MemoryManager.initSourceInfo = (source) => {
 	const y = source.pos.y;
 
 	const testPoints = [
-		new RoomPosition(x + 1, y + 1, roomName),
-		new RoomPosition(x + 1, y, roomName),
-		new RoomPosition(x + 1, y - 1, roomName),
-		new RoomPosition(x, y + 1, roomName),
-		new RoomPosition(x, y - 1, roomName),
-		new RoomPosition(x - 1, y + 1, roomName),
-		new RoomPosition(x - 1, y, roomName),
-		new RoomPosition(x - 1, y - 1, roomName),
+		new Position(x + 1, y + 1),
+		new Position(x + 1, y),
+		new Position(x + 1, y - 1),
+		new Position(x, y + 1),
+		new Position(x, y - 1),
+		new Position(x - 1, y + 1),
+		new Position(x - 1, y),
+		new Position(x - 1, y - 1),
 	];
 
 	const sourceInfo = {
 		accessPoints: {}
 	};
 
-	testPoints.every((pos, idx) => {
+	for (const [idx, pos] of testPoints.entries()) {
+		console.log(pos, idx);
 		if ('wall' !== Game.map.getTerrainAt(pos.x, pos.y, roomName)) {
 			sourceInfo.accessPoints[idx] = {
 				pos: pos
 			};
 		}
-	});
+	}
 
 	return sourceInfo;
 };

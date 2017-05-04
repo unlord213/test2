@@ -26,11 +26,13 @@
     "describe": false,
     "desc": false,
     "it": false,
+    "expect": false,
 		"sandbox": false,
     "Memory": false,
 		"Game": false,
 		"RoomPosition": false,
-		"FIND_SOURCES": false
+		"FIND_SOURCES": false,
+    "Position": false
 	},
 	"extends": "eslint:recommended"
 }
