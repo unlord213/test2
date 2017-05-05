@@ -8,10 +8,14 @@ const SourceInfo = require('../src/SourceInfo');
 const AccessPoint = require('../src/AccessPoint');
 
 desc('MemoryManager', () => {
-	it('should init room infos', () => {
-		const find0 = sandbox.stub();
-		const find1 = sandbox.stub();
-		const getTerrainAt = sandbox.stub();
+	let find0 = sandbox.stub();
+	let find1 = sandbox.stub();
+	let getTerrainAt = sandbox.stub();
+
+	beforeEach(() => {
+		find0 = sandbox.stub();
+		find1 = sandbox.stub();
+		getTerrainAt = sandbox.stub();
 
 		Game.rooms = {
 			'roomName0': {
@@ -27,8 +31,12 @@ desc('MemoryManager', () => {
 		Game.map = {
 			getTerrainAt: getTerrainAt
 		};
+	});
 
-		Memory.roomInfos = {};
+	it('should init room infos', () => {
+
+		/*eslint-disable no-global-assign */
+		Memory = {};
 
 		const source0_0 = {
 			id: 'sourceid0_0',
@@ -109,5 +117,16 @@ desc('MemoryManager', () => {
 				}
 			}
 		});
+	});
+
+	it('should not do anything if room info already present', () => {
+		const roomInfo = {
+			foo: 'bar'
+		};
+		Memory.roomInfos['roomName0'] = roomInfo;
+
+		MemoryManager.initRoomInfos();
+
+		expect(Memory.roomInfos['roomName0']).to.eql(roomInfo);
 	});
 });

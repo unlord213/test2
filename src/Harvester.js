@@ -10,111 +10,67 @@ class Harvester {
 	}
 
 	run() {
-		if (this.creep.memory.actionInfo.id === IdleActionInfo.id) {
-			this.findSource();
+		// todo: check returns?
+		const actionInfo = this.creep.memory.actionInfo;
+		const actionInfoId = actionInfo.id;
+
+		if (actionInfoId === IdleActionInfo.id && !actionInfo.full) {
+			this.findSource(actionInfo);
 			return;
 		}
 
-		if (this.creep.memory.actionInfo.id === HarvestActionInfo.id) {
+		if (actionInfoId === HarvestActionInfo.id) {
 			this.harvest();
 			return;
 		}
 	}
 
-	harvest() {
-		const roomName = this.creep.room.name;
-		let actionInfo = this.creep.memory.actionInfo;
+	harvest(actionInfo) {
+		const creep = this.creep;
+		const roomName = creep.room.name;
+		const sourceId = actionInfo.sourceId;
+		const accessPointId = actionInfo.accessPointId;
+		const accessPoint = SourceManager.getAccessPoint(roomName, sourceId, accessPointId);
 
-		if (_.sum(this.creep.carry) === this.creep.carryCapacity) {
-			const accessPoint = SourceManager.getAccessPoint(roomName, actionInfo.sourceId, actionInfo.accessPointId);
+		if (_.sum(creep.carry) === creep.carryCapacity) {
 			accessPoint.creepId = null;
-
-			actionInfo = new IdleActionInfo(true);
+			creep.memory.actionInfo = new IdleActionInfo(true);
 			return;
 		}
 
 		const source = SourceManager.getSource(actionInfo.sourceId);
 
 		if (actionInfo.harvesting) {
-			this.creep.harvest(source);
+			creep.harvest(source);
 			return;
 		}
-
-		// if (null === actionInfo.accessPointId) {
-		// 	const source = SourceManager.getSource(actionInfo.sourceId);
-		// 	const returnValue = this.creep.harvest(source);
-		//
-		// 	if (OK === returnValue) {
-		// 		const accessPointId = SourceManager.getAccessPointId(actionInfo.sourceId, this.creep.pos);
-		//
-		// 		if (!accessPointId) {
-		// 			const sourceInfo = SourceManager.getSourceInfo(actionInfo.sourceId);
-		// 			const newAccessPointId = Object.keys(sourceInfo).size();
-		// 			sourceInfo.accessPoints[newAccessPointId] = {
-		// 				roomPoisition: this.creep.pos,
-		// 				creepId: this.creep.id
-		// 			};
-		// 			return;
-		// 		}
-		//
-		// 		const sourceInfo = SourceManager.getSourceInfo(actionInfo.sourceId);
-		// 		const prevCreepId = sourceInfo.accessPoints[accessPointId];
-		// 		Game.getObjectById(prevCreepId).memory.actionInfo = new IdleActionInfo(false);
-		//
-		// 		sourceInfo.accessPoints[accessPointId].creepId = this.creep.id;
-		// 	}
-		//
-		// 	if (ERR_NOT_IN_RANGE === returnValue) {
-		// 		this.creep.moveTo(source);
-		// 		return;
-		// 	}
-		//
-		// 	console.log('Unknown error harvesting:', returnValue);
-		// 	return;
-		// }
-
-		const accessPoint = SourceManager.getAccesPoint(roomName, actionInfo.sourceId, actionInfo.accessPointId).pos;
-		if (this.creep.pos === accessPoint.pos) {
-			// const sourceInfo = SourceManager.getSourceInfo(actionInfo.sourceId);
-			accessPoint.creepId = this.creep.id;
-
+		
+		if (creep.pos.x === accessPoint.pos.x && creep.pos.y === accessPoint.pos.y ) {
+			accessPoint.creepId = creep.id;
 			actionInfo.harvesting = true;
 
-			// const source = SourceManager.getSource(actionInfo.sourceId);
-			// todo: check return?
-			this.creep.harvest(source);
+			creep.harvest(source);
 			return;
 		}
 
-		// if (actionInfo.position) {
-		//   this.creep.moveTo(actionInfo.position);
-		//   return;
-		// }
-
-		// const source = SourceManager.getSource(actionInfo.sourceId);
-		this.creep.moveTo(source);
+		creep.moveTo(source);
 	}
 
 	findSource() {
-		const roomName = this.creep.room.name;
+		const creep = this.creep;
+		const roomName = creep.room.name;
+
 		const openAccessPoint = SourceManager.getOpenAccessPoint(roomName);
 
 		if (openAccessPoint) {
 			const actionInfo = new HarvestActionInfo(openAccessPoint.sourceId, openAccessPoint.accessPointId);
-			this.creep.memory.actionInfo = actionInfo;
+			creep.memory.actionInfo = actionInfo;
 			return;
 		}
 
-		// const unmappedSourceId = SourceManager.getUnmappedSource();
-		// if (unmappedSourceId) {
-		// 	const actionInfo = new HarvestActionInfo(unmappedSourceId, null);
-		// 	this.creep.memory.actionInfo = actionInfo;
-		// 	return;
-		// }
-
 		/*eslint-disable no-console */
-		console.log(this.creep.name + ' has nowhere to go');
-		this.creep.moveTo(Game.structures['Spawn1']);
+		console.log(creep.name + ' has nowhere to go');
+		creep.moveTo(Game.structures['Spawn1']);
 	}
 }
 
