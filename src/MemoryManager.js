@@ -42,7 +42,7 @@ MemoryManager.initRoomInfos = () => {
 
 MemoryManager.initSourceInfos = (room) => {
 	const sourceInfos = {};
-	for(const source of room.find(FIND_SOURCES)) {
+	for (const source of room.find(FIND_SOURCES)) {
 		sourceInfos[source.id] = MemoryManager.initSourceInfo(source);
 	}
 

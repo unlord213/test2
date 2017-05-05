@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
 class ActionInfo {
-  constructor(id) {
-    this.id = id;
-  }
+	constructor(id) {
+		this.id = id;
+	}
 }
 
 module.exports = ActionInfo;

@@ -15,7 +15,7 @@
 		"semi": [
 			2,
 			"always"
-		]
+		],
 	},
 	"env": {
 		"es6": true,
@@ -23,16 +23,20 @@
 	},
 	"globals": {
 		"_": false,
-    "describe": false,
-    "desc": false,
-    "it": false,
-    "expect": false,
+		"describe": false,
+		"desc": false,
+		"it": false,
+		"expect": false,
+		"beforeEach": false,
+		"sinon": false,
 		"sandbox": false,
-    "Memory": false,
+		"Memory": false,
 		"Game": false,
 		"RoomPosition": false,
 		"FIND_SOURCES": false,
-    "Position": false
+		"OK": false,
+		"ERR_NOT_IN_RANGE": false,
+		"Position": false
 	},
 	"extends": "eslint:recommended"
 }
