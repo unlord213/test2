@@ -1,10 +1,9 @@
-"use strict";
+'use strict';
 
 class SourceInfo {
-  constructor() {
-    this.accessPoints = {};
-    this.mapped = false;
-  }
+	constructor() {
+		this.accessPoints = {};
+	}
 }
 
 module.exports = SourceInfo;

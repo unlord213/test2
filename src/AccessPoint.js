@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
 class AccessPoint {
-  constructor(roomPosition, creepId) {
-    this.roomPosition = roomPosition;
-    this.creepId = creepId;
-  }
+	constructor(pos, creepId) {
+		this.pos = pos;
+		this.creepId = creepId;
+	}
 }
 
 module.exports = AccessPoint;

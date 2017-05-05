@@ -1,6 +1,8 @@
 'use strict';
 
 const Position = require('../src/Position');
+const SourceInfo = require('../src/SourceInfo');
+const AccessPoint = require('../src/AccessPoint');
 
 /**
  *	Memory = {
@@ -63,16 +65,11 @@ MemoryManager.initSourceInfo = (source) => {
 		new Position(x - 1, y - 1),
 	];
 
-	const sourceInfo = {
-		accessPoints: {}
-	};
+	const sourceInfo = new SourceInfo();
 
 	for (const [idx, pos] of testPoints.entries()) {
-		console.log(pos, idx);
 		if ('wall' !== Game.map.getTerrainAt(pos.x, pos.y, roomName)) {
-			sourceInfo.accessPoints[idx] = {
-				pos: pos
-			};
+			sourceInfo.accessPoints[idx] = new AccessPoint(pos);
 		}
 	}
 
