@@ -1,8 +1,8 @@
 'use strict';
 
-const Position = require('../src/Position');
-const SourceInfo = require('../src/SourceInfo');
-const AccessPoint = require('../src/AccessPoint');
+const Position = require('./Position');
+const SourceInfo = require('./SourceInfo');
+const AccessPoint = require('./AccessPoint');
 
 /**
  *	Memory = {
@@ -34,6 +34,8 @@ MemoryManager.initRoomInfos = () => {
 			return;
 		}
 
+		/*eslint-disable no-console */
+		console.log('Memory manager init room ' + roomName);
 		Memory.roomInfos[roomName] = {
 			sourceInfos: MemoryManager.initSourceInfos(room)
 		};
@@ -75,18 +77,5 @@ MemoryManager.initSourceInfo = (source) => {
 
 	return sourceInfo;
 };
-
-// MemoryManager.initSources = function() {
-//   if (!Memory.my) {
-//     Memory.my = {};
-//   }
-//
-//   if (!Memory.my.sourceInfos) {
-//     Memory.my.sourceInfos = {};
-//     Game.spawns['Spawn1'].room.find(FIND_SOURCES).forEach((source) => {
-//       Memory.my.sourceInfos[source.id] = new SourceInfo();
-//     });
-//   }
-// }
 
 module.exports = MemoryManager;

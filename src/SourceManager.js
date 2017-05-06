@@ -9,13 +9,14 @@ SourceManager.getSource = (sourceId) => {
 	return Game.getObjectById(sourceId);
 };
 
-SourceManager.getOpenAccessPoint = (roomName) => {
+SourceManager.getOpenAccessPoint = (roomName, creepId) => {
 	const sourceInfos = Memory.roomInfos[roomName].sourceInfos;
 	for (const sourceId of Object.keys(sourceInfos)) {
 		const accessPoints = sourceInfos[sourceId].accessPoints;
 
 		for (const accessPointId of Object.keys(accessPoints)) {
 			if (!accessPoints[accessPointId].creepId) {
+				accessPoints[accessPointId].creepId = creepId;
 				return {
 					sourceId: sourceId,
 					accessPointId: accessPointId

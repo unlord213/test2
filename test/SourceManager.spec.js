@@ -18,7 +18,7 @@ desc('SourceManager', () => {
 			const sourceId = 'sourceId0';
 			const accessPointId = '0';
 			const accessPoint = new AccessPoint(new Position(1,2));
-			
+
 			Memory = {
 				roomInfos: {
 					roomName0: {
@@ -80,18 +80,21 @@ desc('SourceManager', () => {
 		});
 
 		it('should return undefined if no open access point', () => {
-			const actual = SourceManager.getOpenAccessPoint('roomName0');
+			const copy = _.clone(Memory.roomInfos);
+			const actual = SourceManager.getOpenAccessPoint('roomName0', 'creepId0');
 			expect(actual).to.eql(undefined);
+			expect(Memory.roomInfos).to.eql(copy);
 		});
 
 		it('should return open access point', () => {
 			Memory.roomInfos.roomName0.sourceInfos.sourceId1.accessPoints['1'].creepId = null;
 
-			const actual = SourceManager.getOpenAccessPoint('roomName0');
+			const actual = SourceManager.getOpenAccessPoint('roomName0', 'creepId0');
 			expect(actual).to.eql({
 				sourceId: 'sourceId1',
 				accessPointId: '1'
 			});
+			expect(Memory.roomInfos.roomName0.sourceInfos.sourceId1.accessPoints['1'].creepId).to.eql('creepId0');
 		});
 	});
 });

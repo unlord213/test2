@@ -13,6 +13,7 @@ desc('MemoryManager', () => {
 	let getTerrainAt = sandbox.stub();
 
 	beforeEach(() => {
+		sandbox.stub(console, 'log');
 		find0 = sandbox.stub();
 		find1 = sandbox.stub();
 		getTerrainAt = sandbox.stub();
@@ -34,7 +35,6 @@ desc('MemoryManager', () => {
 	});
 
 	it('should init room infos', () => {
-
 		/*eslint-disable no-global-assign */
 		Memory = {};
 
@@ -117,6 +117,9 @@ desc('MemoryManager', () => {
 				}
 			}
 		});
+
+		/*eslint-disable no-console */
+		expect(console.log).to.have.been.calledWith('Memory manager init room roomName0');
 	});
 
 	it('should not do anything if room info already present', () => {
@@ -128,5 +131,6 @@ desc('MemoryManager', () => {
 		MemoryManager.initRoomInfos();
 
 		expect(Memory.roomInfos['roomName0']).to.eql(roomInfo);
+		expect(console.log).to.not.have.been.called;
 	});
 });

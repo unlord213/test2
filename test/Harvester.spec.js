@@ -70,7 +70,7 @@ desc('Harvester', () => {
 			creep.memory.actionInfo.id = HarvestActionInfo.id;
 			harvester.run();
 
-			expect(findSource).to.not.have.been.called;
+			expect(findSource).to.not.have.been.calledWith(creep.memory.actionInfo);
 			expect(harvest).to.have.been.called;
 		});
 	});
@@ -139,7 +139,7 @@ desc('Harvester', () => {
 			expect(creep.moveTo).to.not.have.been.called;
 		});
 
-		it('should move to source', () => {
+		it('should move to access point', () => {
 			actionInfo.harvesting = false;
 
 			creep.pos = new Position(42, 43);
@@ -147,7 +147,7 @@ desc('Harvester', () => {
 
 			harvester.harvest(actionInfo);
 
-			expect(creep.moveTo).to.have.been.calledWith(source);
+			expect(creep.moveTo).to.have.been.calledWith(new RoomPosition(24, 25, 'roomName0'));
 			expect(creep.harvest).to.not.have.been.called;
 		});
 	});
@@ -169,7 +169,7 @@ desc('Harvester', () => {
 
 			harvester.findSource();
 
-			expect(SourceManager.getOpenAccessPoint).to.have.been.called;
+			expect(SourceManager.getOpenAccessPoint).to.have.been.calledWith('roomName0', 'creepId0');
 			expect(creep.memory.actionInfo).to.eql(new HarvestActionInfo(sourceId, accessPointId));
 		});
 
@@ -177,7 +177,8 @@ desc('Harvester', () => {
 			const spawn = {
 				foo: 'bar'
 			};
-			Game.structures['Spawn1'] = spawn;
+
+			creep.room.find = sandbox.stub().returns([spawn]);
 
 			sandbox.stub(console, 'log');
 
@@ -186,147 +187,9 @@ desc('Harvester', () => {
 			harvester.findSource();
 
 			expect(SourceManager.getOpenAccessPoint).to.have.been.called;
-			expect(creep.moveTo).to.have.been.calledWith(spawn);
+			expect(creep.moveTo).to.have.been.calledWith(spawn, Harvester.visualize);
 			/*eslint-disable no-console */
 			expect(console.log).to.have.been.calledWith(creep.name + ' has nowhere to go');
 		});
 	});
-
-	// describe('harvest', function() {
-	//   const pos = {
-	//     foo: 'bar'
-	//   };
-	//
-	//
-	//   it('should harvest if at source', function() {
-	//     const source = {
-	//       bar: 'foo'
-	//     };
-	//
-	//     const getObjectById = sandbox.stub(Game, 'getObjectById');
-	//     getObjectById.returns(source);
-	//
-	//     creep.pos = pos;
-	//     creep.memory.actionInfo.position = pos;
-	//
-	//     harvester.harvest();
-	//
-	//     expect(Game.getObjectById).to.have.been.calledWith(sourceId);
-	//     expect(creep.harvest).to.have.been.calledWith(source);
-	//     expect(creep.moveTo).to.not.have.been.called;
-	//   });
-	//
-	//   it('should move to action position', function() {
-	//     const pos2 = {
-	//       bar: 'foo'
-	//     };
-	//
-	//     creep.pos = pos;
-	//     creep.memory.actionInfo.position = pos2;
-	//
-	//     harvester.harvest();
-	//
-	//     expect(creep.harvest).to.not.have.been.called;
-	//     expect(creep.moveTo).to.have.been.calledWith(pos2);
-	//   });
-	//
-	//   it('should move to source', function() {
-	//     const source = {
-	//       bar: 'foo'
-	//     };
-	//
-	//     const getObjectById = sandbox.stub(Game, 'getObjectById');
-	//     getObjectById.returns(source);
-	//
-	//     creep.pos = pos;
-	//
-	//     harvester.harvest();
-	//
-	//     expect(creep.harvest).to.not.have.been.called;
-	//     expect(creep.moveTo).to.have.been.calledWith(source);
-	//   });
-	// });
-	//
-	// desc('findTarget', function() {
-	//   beforeEach(function() {
-	//     Memory.my = {
-	//       sourceInfos: new Map()
-	//     }
-	//   })
-	//
-	//   it('should set action if source has open slot', function() {
-	//     const sourceInfo = new SourceInfo();
-	//     sourceInfo.mapped = true;
-	//
-	//     const openSpot1 = {
-	//       foo: 'bar'
-	//     };
-	//     sourceInfo.openSpots.push(openSpot1);
-	//
-	//     const openSpot2 = {
-	//       foo: 'bar2'
-	//     };
-	//     sourceInfo.openSpots.push(openSpot2);
-	//
-	//     Memory.my.sourceInfos = new Map();
-	//     Memory.my.sourceInfos.set(sourceId, sourceInfo);
-	//
-	//     harvester.findTarget();
-	//
-	//     expect(creep.memory.actionInfo).to.eql(new HarvestActionInfo(sourceId, openSpot1, false));
-	//     expect(sourceInfo.openSpots).to.eql([openSpot2]);
-	//   })
-	//
-	//   it('should set action if source has no open slots and not been mapped', function() {
-	//     const sourceInfo = new SourceInfo();
-	//     sourceInfo.mapped = false;
-	//
-	//     Memory.my.sourceInfos = new Map();
-	//     Memory.my.sourceInfos.set(sourceId, sourceInfo);
-	//
-	//     harvester.findTarget();
-	//
-	//     expect(creep.memory.actionInfo).to.eql(new HarvestActionInfo(sourceId, null, false));
-	//     expect(sourceInfo.openSpots).to.eql([]);
-	//   })
-	//
-	//   it('should move to spawn if nowhere else to go', function() {
-	//     const sourceInfo = new SourceInfo();
-	//     sourceInfo.mapped = false;
-	//
-	//     Memory.my.sourceInfos = new Map();
-	//     Memory.my.sourceInfos.set(sourceId, sourceInfo);
-	//
-	//     harvester.findTarget();
-	//
-	//     expect(creep.memory.actionInfo).to.eql(new HarvestActionInfo(sourceId, null, false));
-	//     expect(sourceInfo.openSpots).to.eql([]);
-	//   })
-	// });
-	//
-	// desc('run', function() {
-	//   it('should find target if idle', function() {
-	//     creep.memory.actionInfo.id = IdleActionInfo.id;
-	//
-	//     const harvestSpy = sandbox.stub(harvester, 'harvest');
-	//     const findTargetSpy = sandbox.stub(harvester, 'findTarget');
-	//
-	//     harvester.run();
-	//
-	//     expect(findTargetSpy).to.have.been.called;
-	//     expect(harvestSpy).to.not.have.been.called;
-	//   });
-	//
-	//   it('should harvset if not idle', function() {
-	//     creep.memory.actionInfo.id = HarvestActionInfo.id;
-	//
-	//     const harvestSpy = sandbox.stub(harvester, 'harvest');
-	//     const findTargetSpy = sandbox.stub(harvester, 'findTarget');
-	//
-	//     harvester.run();
-	//
-	//     expect(findTargetSpy).to.not.have.been.called;
-	//     expect(harvestSpy).to.have.been.called;
-	//   });
-	// });
 });

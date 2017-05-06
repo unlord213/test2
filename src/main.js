@@ -9,7 +9,7 @@ module.exports.loop = function() {
 	MemoryManager.initRoomInfos();
 
 	Object.keys(Game.structures).forEach((structureId) => {
-		const structure = Game.structures(structureId);
+		const structure = Game.structures[structureId];
 		switch (structure.structureType) {
 			case STRUCTURE_SPAWN:
 				structure.createCreep([WORK, CARRY, MOVE], undefined, {
@@ -21,7 +21,9 @@ module.exports.loop = function() {
 
 	Object.keys(Game.creeps).forEach((creepId) => {
 		const creep = Game.creeps[creepId];
-		new Harvester(creep).run();
+		if(!creep.spawning) {
+			new Harvester(creep).run();
+		}
 	});
 
 	if (Game.time % 20 === 0) {

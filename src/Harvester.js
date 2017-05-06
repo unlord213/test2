@@ -10,17 +10,32 @@ class Harvester {
 	}
 
 	run() {
-		// todo: check returns?
+		// TODO: check returns?
+		// TODO: find action (upgrade controller, put energy in structure, build strucutre)
+		// TODO: break into HarvestAction, IdleAction, UpgradeAction, etc
 		const actionInfo = this.creep.memory.actionInfo;
 		const actionInfoId = actionInfo.id;
 
-		if (actionInfoId === IdleActionInfo.id && !actionInfo.full) {
-			this.findSource(actionInfo);
+		if (actionInfoId === IdleActionInfo.id) {
+			if (!actionInfo.full) {
+				this.findSource();
+				return;
+			}
+
+			/*eslint-disable no-console */
+			// console.log(this.creep.name + ' has nothing to do');
+			// const targets = this.creep.room.find(FIND_STRUCTURES, {
+			// 	filter: (structure) => {
+			// 		return (structure.structureType === STRUCTURE_SPAWN);
+			// 	}
+			// });
+			// this.creep.moveTo(targets[0]);
+			// return;
 			return;
 		}
 
 		if (actionInfoId === HarvestActionInfo.id) {
-			this.harvest();
+			this.harvest(actionInfo);
 			return;
 		}
 	}
@@ -44,8 +59,8 @@ class Harvester {
 			creep.harvest(source);
 			return;
 		}
-		
-		if (creep.pos.x === accessPoint.pos.x && creep.pos.y === accessPoint.pos.y ) {
+
+		if (creep.pos.x === accessPoint.pos.x && creep.pos.y === accessPoint.pos.y) {
 			accessPoint.creepId = creep.id;
 			actionInfo.harvesting = true;
 
@@ -53,14 +68,14 @@ class Harvester {
 			return;
 		}
 
-		creep.moveTo(source);
+		creep.moveTo(new RoomPosition(accessPoint.pos.x, accessPoint.pos.y, roomName), Harvester.visualize);
 	}
 
 	findSource() {
 		const creep = this.creep;
 		const roomName = creep.room.name;
 
-		const openAccessPoint = SourceManager.getOpenAccessPoint(roomName);
+		const openAccessPoint = SourceManager.getOpenAccessPoint(roomName, creep.id);
 
 		if (openAccessPoint) {
 			const actionInfo = new HarvestActionInfo(openAccessPoint.sourceId, openAccessPoint.accessPointId);
@@ -70,8 +85,20 @@ class Harvester {
 
 		/*eslint-disable no-console */
 		console.log(creep.name + ' has nowhere to go');
-		creep.moveTo(Game.structures['Spawn1']);
+		const targets = creep.room.find(FIND_STRUCTURES, {
+			filter: (structure) => {
+				return (structure.structureType === STRUCTURE_SPAWN);
+			}
+		});
+		creep.moveTo(targets[0], Harvester.visualize);
+		// creep.moveTo(Game.structures['Spawn1']);
 	}
 }
+
+Harvester.visualize = {
+	visualizePathStyle: {
+		stroke: '#ffffff'
+	}
+};
 
 module.exports = Harvester;
