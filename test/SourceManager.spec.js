@@ -3,6 +3,8 @@
 require('./lib/common.js');
 
 const SourceManager = require('../src/SourceManager');
+const AccessPoint = require('../src/AccessPoint');
+const Position = require('../src/Position');
 
 desc('SourceManager', () => {
 	beforeEach(() => {
@@ -12,6 +14,25 @@ desc('SourceManager', () => {
 
 	describe('getAccessPoint', () => {
 		it('should get access point', () => {
+			const roomName = 'roomName0';
+			const sourceId = 'sourceId0';
+			const accessPointId = '0';
+			const accessPoint = new AccessPoint(new Position(1,2));
+			
+			Memory = {
+				roomInfos: {
+					roomName0: {
+						sourceInfos: {
+							sourceId0: {
+								accessPoints: {
+									'0': accessPoint
+								}
+							}
+						}
+					}
+				}
+			};
+
 			const actual = SourceManager.getAccessPoint(roomName, sourceId, accessPointId);
 			expect(actual).to.eql(accessPoint);
 		});

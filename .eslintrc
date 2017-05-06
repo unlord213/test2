@@ -2,7 +2,8 @@
 	"rules": {
 		"indent": [
 			2,
-			"tab"
+			"tab",
+      {"SwitchCase": 1}
 		],
 		"quotes": [
 			2,
@@ -36,6 +37,10 @@
 		"FIND_SOURCES": false,
 		"OK": false,
 		"ERR_NOT_IN_RANGE": false,
+    "STRUCTURE_SPAWN": false,
+    "WORK": false,
+    "CARRY": false,
+    "MOVE": false,
 		"Position": false
 	},
 	"extends": "eslint:recommended"

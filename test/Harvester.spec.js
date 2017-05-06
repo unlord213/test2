@@ -30,8 +30,8 @@ desc('Harvester', () => {
 			room: {
 				name: roomName
 			},
-			harvest: sinon.stub(),
-			moveTo: sinon.stub()
+			harvest: sandbox.stub(),
+			moveTo: sandbox.stub()
 		};
 
 		harvester = new Harvester(creep);
