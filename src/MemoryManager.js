@@ -8,11 +8,10 @@ const AccessPoint = require('./AccessPoint');
  *	Memory = {
  *		roomInfos: {
  *			roomName0: {
- *				structures: {
+ *				structureInfos: {
  *					structureId0: {
- *						transfer: {
- *							energy: 42,
- *							creepId: 'creepId0'
+ *						transfers: {
+ *							creepId0: 42
  *						}
  *					}
  *				},
@@ -95,11 +94,30 @@ MemoryManager.setControllerBeingUpgraded = (roomName, creepId) => {
 };
 
 MemoryManager.getTransferEnergy = (roomName, structureId) => {
+	const structure = Memory.roomInfos[roomName].structureInfos[structureId];
+	if (!structure || !structure.transfers) {
+		return 0;
+	}
 
+	let sum = 0;
+	for (const creepId of Object.keys(structure.transfers)) {
+		sum += structure.transfers[creepId];
+	}
+	return sum;
 };
 
-MemoryManager.addTransferToStructure = (structureId, creepId, energy) => {
+MemoryManager.addTransferToStructure = (roomName, structureId, creepId, energy) => {
+	const structureInfos = Memory.roomInfos[roomName].structureInfos;
+	if (!structureInfos[structureId]) {
+		structureInfos[structureId] = {};
+	}
 
+	const structureInfo = structureInfos[structureId];
+	if (!structureInfo.transfers) {
+		structureInfo.transfers = {};
+	}
+
+	structureInfo.transfers[creepId] = energy;
 };
 
 

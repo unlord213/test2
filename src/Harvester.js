@@ -14,7 +14,6 @@ class Harvester {
 
 	run() {
 		// TODO: check returns?
-		// TODO: find action (upgrade controller, put energy in structure, build strucutre)
 		// TODO: break into HarvestAction, IdleAction, UpgradeAction, etc
 		let actionInfo = this.creep.memory.actionInfo;
 		const actionInfoId = actionInfo.id;
@@ -31,34 +30,15 @@ class Harvester {
 			case HarvestActionInfo.id:
 				this.harvest(actionInfo);
 				return;
+			case UpgradeControllerActionInfo.id:
+				this.upgradeController(actionInfo);
+				return;
+			case TransferActionInfo.id:
+				this.transfer(actionInfo);
+				return;
 			default:
 				return;
 		}
-
-		// if (actionInfoId === IdleActionInfo.id) {
-		// 	if (actionInfo.full) {
-		// 		this.findAction();
-		// 		return;
-		// 	}
-		//
-		// 	this.findSource();
-		// 	return;
-		// }
-
-		/*eslint-disable no-console */
-		// console.log(this.creep.name + ' has nothing to do');
-		// const targets = this.creep.room.find(FIND_STRUCTURES, {
-		// 	filter: (structure) => {
-		// 		return (structure.structureType === STRUCTURE_SPAWN);
-		// 	}
-		// });
-		// this.creep.moveTo(targets[0]);
-		// return;
-
-		// if (actionInfoId === HarvestActionInfo.id) {
-		// 	this.harvest(actionInfo);
-		// 	return;
-		// }
 	}
 
 	findAction() {
@@ -72,8 +52,8 @@ class Harvester {
 
 		const structures = SourceManager.findStructuresNeedingEnergy(room);
 		const structureId = structures[0].id;
-		if(structures.length) {
-			MemoryManager.addTransferToStructure(structureId, creep.id, creep.carry[RESOURCE_ENERGY]);
+		if (structures.length) {
+			MemoryManager.addTransferToStructure(roomName, structureId, creep.id, creep.carry[RESOURCE_ENERGY]);
 			return new TransferActionInfo(structureId);
 		}
 
@@ -134,6 +114,10 @@ class Harvester {
 	}
 
 	upgradeController() {
+
+	}
+
+	transfer() {
 
 	}
 }
