@@ -39,6 +39,8 @@
 		"ERR_NOT_IN_RANGE": false,
     "STRUCTURE_SPAWN": false,
     "FIND_STRUCTURES": false,
+    "STRUCTURE_EXTENSION": false,
+    "RESOURCE_ENERGY": false,
     "WORK": false,
     "CARRY": false,
     "MOVE": false,

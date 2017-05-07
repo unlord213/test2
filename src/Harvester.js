@@ -2,7 +2,10 @@
 
 const IdleActionInfo = require('./IdleActionInfo');
 const HarvestActionInfo = require('./HarvestActionInfo');
+const UpgradeControllerActionInfo = require('./UpgradeControllerActionInfo');
+const TransferActionInfo = require('./TransferActionInfo');
 const SourceManager = require('./SourceManager');
+const MemoryManager = require('./MemoryManager');
 
 class Harvester {
 	constructor(creep) {
@@ -13,31 +16,68 @@ class Harvester {
 		// TODO: check returns?
 		// TODO: find action (upgrade controller, put energy in structure, build strucutre)
 		// TODO: break into HarvestAction, IdleAction, UpgradeAction, etc
-		const actionInfo = this.creep.memory.actionInfo;
+		let actionInfo = this.creep.memory.actionInfo;
 		const actionInfoId = actionInfo.id;
 
-		if (actionInfoId === IdleActionInfo.id) {
-			if (!actionInfo.full) {
+		switch (actionInfoId) {
+			case IdleActionInfo.id:
+				if (actionInfo.full) {
+					actionInfo = this.findAction();
+					return;
+				}
+
 				this.findSource();
 				return;
-			}
-
-			/*eslint-disable no-console */
-			// console.log(this.creep.name + ' has nothing to do');
-			// const targets = this.creep.room.find(FIND_STRUCTURES, {
-			// 	filter: (structure) => {
-			// 		return (structure.structureType === STRUCTURE_SPAWN);
-			// 	}
-			// });
-			// this.creep.moveTo(targets[0]);
-			// return;
-			return;
+			case HarvestActionInfo.id:
+				this.harvest(actionInfo);
+				return;
+			default:
+				return;
 		}
 
-		if (actionInfoId === HarvestActionInfo.id) {
-			this.harvest(actionInfo);
-			return;
+		// if (actionInfoId === IdleActionInfo.id) {
+		// 	if (actionInfo.full) {
+		// 		this.findAction();
+		// 		return;
+		// 	}
+		//
+		// 	this.findSource();
+		// 	return;
+		// }
+
+		/*eslint-disable no-console */
+		// console.log(this.creep.name + ' has nothing to do');
+		// const targets = this.creep.room.find(FIND_STRUCTURES, {
+		// 	filter: (structure) => {
+		// 		return (structure.structureType === STRUCTURE_SPAWN);
+		// 	}
+		// });
+		// this.creep.moveTo(targets[0]);
+		// return;
+
+		// if (actionInfoId === HarvestActionInfo.id) {
+		// 	this.harvest(actionInfo);
+		// 	return;
+		// }
+	}
+
+	findAction() {
+		const creep = this.creep;
+		const room = creep.room;
+		const roomName = room.name;
+		if (!MemoryManager.isControllerBeingUpgraded(roomName)) {
+			MemoryManager.setControllerBeingUpgraded(roomName, creep.Id);
+			return new UpgradeControllerActionInfo(room.controller.id);
 		}
+
+		const structures = SourceManager.findStructuresNeedingEnergy(room);
+		const structureId = structures[0].id;
+		if(structures.length) {
+			MemoryManager.addTransferToStructure(structureId, creep.id, creep.carry[RESOURCE_ENERGY]);
+			return new TransferActionInfo(structureId);
+		}
+
+		return new UpgradeControllerActionInfo(room.controller.id);
 	}
 
 	harvest(actionInfo) {
@@ -91,7 +131,10 @@ class Harvester {
 			}
 		});
 		creep.moveTo(targets[0], Harvester.visualize);
-		// creep.moveTo(Game.structures['Spawn1']);
+	}
+
+	upgradeController() {
+
 	}
 }
 
