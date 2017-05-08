@@ -5,7 +5,7 @@ require('./lib/common.js');
 const IdleActionInfo = require('../src/IdleActionInfo');
 const HarvestActionInfo = require('../src/HarvestActionInfo');
 const Harvester = require('../src/Harvester');
-const SourceManager = require('../src/SourceManager');
+const MemoryManager = require('../src/MemoryManager');
 const Position = require('../src/Position');
 
 let creep;
@@ -38,12 +38,12 @@ desc('Harvester', () => {
 	});
 
 	desc('run', () => {
-		let findSource;
-		let harvest;
-
 		beforeEach(() => {
-			findSource = sandbox.stub(harvester, 'findSource');
-			harvest = sandbox.stub(harvester, 'harvest');
+			sandbox.stub(harvester, 'findEnergyTransfer');
+			sandbox.stub(harvester, 'findSource');
+			sandbox.stub(harvester, 'harvest');
+			sandbox.stub(harvester, 'upgradeController');
+			sandbox.stub(harvester, 'transfer');
 		});
 
 		it('should find source if not full', () => {
@@ -52,26 +52,38 @@ desc('Harvester', () => {
 
 			harvester.run();
 
-			expect(findSource).to.have.been.called;
-			expect(harvest).to.not.have.been.called;
+			expect(harvester.findSource).to.have.been.called;
+
+			expect(harvester.findEnergyTransfer).to.not.have.been.called;
+			expect(harvester.harvest).to.not.have.been.called;
+			expect(harvester.upgradeController).to.not.have.been.called;
+			expect(harvester.transfer).to.not.have.been.called;
 		});
 
-		it('should do nothing if full', () => {
+		it('should get action if full', () => {
 			creep.memory.actionInfo.id = IdleActionInfo.id;
 			creep.memory.actionInfo.full = true;
 
 			harvester.run();
 
-			expect(findSource).to.not.have.been.called;
-			expect(harvest).to.not.have.been.called;
+			expect(harvester.findEnergyTransfer).to.have.been.called;
+
+			expect(harvester.findSource).to.not.have.been.called;
+			expect(harvester.harvest).to.not.have.been.called;
+			expect(harvester.upgradeController).to.not.have.been.called;
+			expect(harvester.transfer).to.not.have.been.called;
 		});
 
 		it('should harvest', () => {
 			creep.memory.actionInfo.id = HarvestActionInfo.id;
 			harvester.run();
 
-			expect(findSource).to.not.have.been.calledWith(creep.memory.actionInfo);
-			expect(harvest).to.have.been.called;
+			expect(harvester.harvest).to.have.been.calledWith(creep.memory.actionInfo);
+
+			expect(harvester.findSource).to.not.have.been.called;
+			expect(harvester.findEnergyTransfer).to.not.have.been.called;
+			expect(harvester.upgradeController).to.not.have.been.called;
+			expect(harvester.transfer).to.not.have.been.called;
 		});
 	});
 
@@ -93,15 +105,17 @@ desc('Harvester', () => {
 			accessPoint = {
 				pos: {}
 			};
-			sandbox.stub(SourceManager, 'getAccessPoint').returns(accessPoint);
+			sandbox.stub(MemoryManager, 'getAccessPoint').returns(accessPoint);
 
-			source = {bar: 'foo'};
-			sandbox.stub(SourceManager, 'getSource').returns(source);
+			source = {
+				bar: 'foo'
+			};
+			sandbox.stub(Game, 'getObjectById').returns(source);
 		});
 
 		it('should get access point', () => {
 			harvester.harvest(actionInfo);
-			expect(SourceManager.getAccessPoint).to.have.been.calledWith(roomName, sourceId, accessPointId);
+			expect(MemoryManager.getAccessPoint).to.have.been.calledWith(roomName, sourceId, accessPointId);
 		});
 
 		it('should stop harvesting', () => {
@@ -111,7 +125,7 @@ desc('Harvester', () => {
 			harvester.harvest(actionInfo);
 
 			expect(creep.memory.actionInfo).to.eql(new IdleActionInfo(true));
-			expect(SourceManager.getSource).to.not.have.been.called;
+			expect(Game.getObjectById).to.not.have.been.called;
 			expect(creep.harvest).to.not.have.been.called;
 			expect(creep.moveTo).to.not.have.been.called;
 		});
@@ -156,7 +170,7 @@ desc('Harvester', () => {
 		let getOpenAccessPoint;
 
 		beforeEach(() => {
-			getOpenAccessPoint = sandbox.stub(SourceManager, 'getOpenAccessPoint');
+			getOpenAccessPoint = sandbox.stub(MemoryManager, 'getOpenAccessPoint');
 		});
 
 		it('should find open access point', () => {
@@ -169,7 +183,7 @@ desc('Harvester', () => {
 
 			harvester.findSource();
 
-			expect(SourceManager.getOpenAccessPoint).to.have.been.calledWith('roomName0', 'creepId0');
+			expect(MemoryManager.getOpenAccessPoint).to.have.been.calledWith('roomName0', 'creepId0');
 			expect(creep.memory.actionInfo).to.eql(new HarvestActionInfo(sourceId, accessPointId));
 		});
 
@@ -186,7 +200,7 @@ desc('Harvester', () => {
 
 			harvester.findSource();
 
-			expect(SourceManager.getOpenAccessPoint).to.have.been.called;
+			expect(MemoryManager.getOpenAccessPoint).to.have.been.called;
 			expect(creep.moveTo).to.have.been.calledWith(spawn, Harvester.visualize);
 			/*eslint-disable no-console */
 			expect(console.log).to.have.been.calledWith(creep.name + ' has nowhere to go');

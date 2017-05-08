@@ -3,6 +3,7 @@
 require('./lib/common.js');
 
 const IdleActionInfo = require('../src/IdleActionInfo');
+const Actions = require('../src/Actions');
 
 desc('IdleActionInfo', () => {
 	it('should set properties', () => {
@@ -11,7 +12,7 @@ desc('IdleActionInfo', () => {
 		const actionInfo = new IdleActionInfo(full);
 
 		expect(actionInfo).to.eql({
-			id: IdleActionInfo.id,
+			id: Actions.IDLE,
 			full: full
 		});
 	});

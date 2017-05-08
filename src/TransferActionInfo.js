@@ -6,6 +6,7 @@ const Actions = require('./Actions');
 class TransferActionInfo extends ActionInfo {
 	constructor() {
 		super(TransferActionInfo.id);
+		this.transfering = false;
 	}
 }
 TransferActionInfo.id = Actions.TRANSFER;

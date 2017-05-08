@@ -5,9 +5,11 @@ require('./lib/common.js');
 const ActionInfo = require('../src/ActionInfo');
 
 desc('ActionInfo', () => {
-	it('should set id', () => {
+	it('should set properties', () => {
 		const id = 'foo';
 		const actionInfo = new ActionInfo(id);
-		expect(actionInfo.id).to.eql(id);
+		expect(actionInfo).to.eql({
+			id: id
+		});
 	});
 });

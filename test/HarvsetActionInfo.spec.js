@@ -3,16 +3,17 @@
 require('./lib/common.js');
 
 const HarvestActionInfo = require('../src/HarvestActionInfo');
+const Actions = require('../src/Actions');
 
 desc('HarvestActionInfo', () => {
 	it('should set properties', () => {
-		const sourceId = 'foo';
-		const accessPointId = 'bar';
+		const sourceId = 'sourceId0';
+		const accessPointId = '0';
 
 		const actionInfo = new HarvestActionInfo(sourceId, accessPointId);
 
 		expect(actionInfo).to.eql({
-			id: HarvestActionInfo.id,
+			id: Actions.HARVESTING,
 			sourceId: sourceId,
 			accessPointId: accessPointId,
 			harvesting: false

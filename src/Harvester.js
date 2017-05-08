@@ -4,7 +4,6 @@ const IdleActionInfo = require('./IdleActionInfo');
 const HarvestActionInfo = require('./HarvestActionInfo');
 const UpgradeControllerActionInfo = require('./UpgradeControllerActionInfo');
 const TransferActionInfo = require('./TransferActionInfo');
-const SourceManager = require('./SourceManager');
 const MemoryManager = require('./MemoryManager');
 
 class Harvester {
@@ -21,7 +20,7 @@ class Harvester {
 		switch (actionInfoId) {
 			case IdleActionInfo.id:
 				if (actionInfo.full) {
-					actionInfo = this.findAction();
+					actionInfo = this.findEnergyTransfer();
 					return;
 				}
 
@@ -41,61 +40,30 @@ class Harvester {
 		}
 	}
 
-	findAction() {
+	findEnergyTransfer() {
 		const creep = this.creep;
 		const room = creep.room;
 		const roomName = room.name;
-		if (!MemoryManager.isControllerBeingUpgraded(roomName)) {
-			MemoryManager.setControllerBeingUpgraded(roomName, creep.Id);
+
+		const roomInfo = MemoryManager.getRoomInfo(roomName);
+		if (!roomInfo.upgradeCreepId) {
+			roomInfo.upgradeCreepId = creep.id;
 			return new UpgradeControllerActionInfo(room.controller.id);
 		}
 
-		const structures = SourceManager.findStructuresNeedingEnergy(room);
-		const structureId = structures[0].id;
-		if (structures.length) {
-			MemoryManager.addTransferToStructure(roomName, structureId, creep.id, creep.carry[RESOURCE_ENERGY]);
+		const structureId = MemoryManager.findStructureNeedingEnergy(room, creep.energy, creep.id);
+		if (structureId) {
 			return new TransferActionInfo(structureId);
 		}
 
 		return new UpgradeControllerActionInfo(room.controller.id);
 	}
 
-	harvest(actionInfo) {
-		const creep = this.creep;
-		const roomName = creep.room.name;
-		const sourceId = actionInfo.sourceId;
-		const accessPointId = actionInfo.accessPointId;
-		const accessPoint = SourceManager.getAccessPoint(roomName, sourceId, accessPointId);
-
-		if (_.sum(creep.carry) === creep.carryCapacity) {
-			accessPoint.creepId = null;
-			creep.memory.actionInfo = new IdleActionInfo(true);
-			return;
-		}
-
-		const source = SourceManager.getSource(actionInfo.sourceId);
-
-		if (actionInfo.harvesting) {
-			creep.harvest(source);
-			return;
-		}
-
-		if (creep.pos.x === accessPoint.pos.x && creep.pos.y === accessPoint.pos.y) {
-			accessPoint.creepId = creep.id;
-			actionInfo.harvesting = true;
-
-			creep.harvest(source);
-			return;
-		}
-
-		creep.moveTo(new RoomPosition(accessPoint.pos.x, accessPoint.pos.y, roomName), Harvester.visualize);
-	}
-
 	findSource() {
 		const creep = this.creep;
 		const roomName = creep.room.name;
 
-		const openAccessPoint = SourceManager.getOpenAccessPoint(roomName, creep.id);
+		const openAccessPoint = MemoryManager.getOpenAccessPoint(roomName, creep.id);
 
 		if (openAccessPoint) {
 			const actionInfo = new HarvestActionInfo(openAccessPoint.sourceId, openAccessPoint.accessPointId);
@@ -113,12 +81,83 @@ class Harvester {
 		creep.moveTo(targets[0], Harvester.visualize);
 	}
 
-	upgradeController() {
+	harvest(actionInfo) {
+		const creep = this.creep;
+		const roomName = creep.room.name;
+		const sourceId = actionInfo.sourceId;
+		const accessPointId = actionInfo.accessPointId;
+		const accessPoint = MemoryManager.getAccessPoint(roomName, sourceId, accessPointId);
 
+		if (_.sum(creep.carry) === creep.carryCapacity) {
+			accessPoint.creepId = null;
+			creep.memory.actionInfo = new IdleActionInfo(true);
+			return;
+		}
+
+		const source = Game.getObjectById(actionInfo.sourceId);
+
+		if (actionInfo.harvesting) {
+			creep.harvest(source);
+			return;
+		}
+
+		if (creep.pos.x === accessPoint.pos.x && creep.pos.y === accessPoint.pos.y) {
+			accessPoint.creepId = creep.id;
+			actionInfo.harvesting = true;
+
+			creep.harvest(source);
+			return;
+		}
+
+		creep.moveTo(new RoomPosition(accessPoint.pos.x, accessPoint.pos.y, roomName), Harvester.visualize);
 	}
 
-	transfer() {
+	upgradeController(actionInfo) {
+		const creep = this.creep;
 
+		if (0 === creep.carry.energy) {
+			creep.memory.actionInfo = new IdleActionInfo(false);
+			return;
+		}
+
+		const controller = Game.getObjectById(actionInfo.sourceId);
+		if (actionInfo.upgrading) {
+			creep.upgradeController(controller);
+			return;
+		}
+
+		const result = creep.upgradeController(controller);
+		if (OK === result) {
+			actionInfo.upgrading = true;
+		}
+
+		if (ERR_NOT_IN_RANGE === result) {
+			creep.moveTo(controller, Harvester.visualize);
+		}
+	}
+
+	transfer(actionInfo) {
+		const creep = this.creep;
+
+		if (0 === creep.carry.energy) {
+			creep.memory.actionInfo = new IdleActionInfo(false);
+			return;
+		}
+
+		const structure = Game.getObjectById(actionInfo.sourceId);
+		if (actionInfo.transfering) {
+			creep.transfer(structure);
+			return;
+		}
+
+		const result = creep.transfer(structure);
+		if (OK === result) {
+			actionInfo.upgrading = true;
+		}
+
+		if (ERR_NOT_IN_RANGE === result) {
+			creep.moveTo(structure, Harvester.visualize);
+		}
 	}
 }
 

@@ -2,14 +2,18 @@
 
 const Position = require('./Position');
 const SourceInfo = require('./SourceInfo');
+const EnergyStructureInfo = require('./EnergyStructureInfo');
 const AccessPoint = require('./AccessPoint');
 
 /**
  *	Memory = {
  *		roomInfos: {
  *			roomName0: {
- *				structureInfos: {
+ *				energyStructureInfos: {
  *					structureId0: {
+ *						energyCapacity: 100,
+ *						energy: 42,
+ *						needsEnergy: true,
  *						transfers: {
  *							creepId0: 42
  *						}
@@ -44,7 +48,8 @@ MemoryManager.initRoomInfos = () => {
 		/*eslint-disable no-console */
 		console.log('Memory manager init room ' + roomName);
 		Memory.roomInfos[roomName] = {
-			sourceInfos: MemoryManager.initSourceInfos(room)
+			sourceInfos: MemoryManager.initSourceInfos(room),
+			energyStructureInfos: MemoryManager.initEnergyStructures(room)
 		};
 	});
 };
@@ -85,39 +90,92 @@ MemoryManager.initSourceInfo = (source) => {
 	return sourceInfo;
 };
 
-MemoryManager.isControllerBeingUpgraded = (roomName) => {
-	return Boolean(Memory.roomInfos[roomName].upgradeCreepId);
+MemoryManager.initEnergyStructures = (room) => {
+	const structures = room.find(FIND_STRUCTURES, {
+		filter: (structure) => {
+			return (structure.structureType === STRUCTURE_EXTENSION ||
+				structure.structureType === STRUCTURE_SPAWN);
+		}
+	});
+
+
+	const structureInfos = {};
+	structures.forEach((structure) => {
+		if (!structureInfos[structure.id]) {
+			structureInfos[structure.id] = new EnergyStructureInfo(structure.energyCapacity, structure.energy);
+		}
+	});
+
+	return structureInfos;
 };
 
-MemoryManager.setControllerBeingUpgraded = (roomName, creepId) => {
-	Memory.roomInfos[roomName].upgradeCreepId = creepId;
+MemoryManager.updateEnergyStructures = () => {
+	for (const roomName of Object.keys(Memory.roomInfos)) {
+		const structureInfos = Memory.roomInfos[roomName].energyStructureInfos;
+		for (const structureId of Object.keys(structureInfos)) {
+			const structureInfo = structureInfos[structureId];
+			const structure = Game.getObjectById(structureId);
+			structureInfo.energy = structure.energy;
+
+			let sum = structureInfo.energy;
+			for (const transferCreepId of Object.keys(structureInfo.transfers)) {
+				sum += structureInfo.transfers[transferCreepId];
+			}
+
+			if (sum < structureInfo.energyCapacity) {
+				structureInfo.needsEnergy = true;
+			}
+		}
+	}
 };
 
-MemoryManager.getTransferEnergy = (roomName, structureId) => {
-	const structure = Memory.roomInfos[roomName].structureInfos[structureId];
-	if (!structure || !structure.transfers) {
-		return 0;
-	}
-
-	let sum = 0;
-	for (const creepId of Object.keys(structure.transfers)) {
-		sum += structure.transfers[creepId];
-	}
-	return sum;
+MemoryManager.getRoomInfo = (roomName) => {
+	return Memory.roomInfos[roomName];
 };
 
-MemoryManager.addTransferToStructure = (roomName, structureId, creepId, energy) => {
-	const structureInfos = Memory.roomInfos[roomName].structureInfos;
-	if (!structureInfos[structureId]) {
-		structureInfos[structureId] = {};
-	}
+MemoryManager.findStructureNeedingEnergy = (roomName, energy, creepId) => {
+	const structureInfos = Memory.roomInfos[roomName].energyStructureInfos;
+	for (const structureId of Object.keys(structureInfos)) {
+		const structureInfo = structureInfos[structureId];
 
-	const structureInfo = structureInfos[structureId];
-	if (!structureInfo.transfers) {
-		structureInfo.transfers = {};
-	}
+		if (structureInfo.needsEnergy) {
+			let sum = energy;
+			for (const transferCreepId of Object.keys(structureInfo.transfers)) {
+				sum += structureInfo.transfers[transferCreepId];
+			}
 
-	structureInfo.transfers[creepId] = energy;
+			if (sum <= structureInfo.energyCapacity) {
+				structureInfo.transfers[creepId] = energy;
+
+				if (sum === structureInfo.energyCapacity) {
+					structureInfo.needsEnergy = false;
+				}
+
+				return structureId;
+			}
+		}
+	}
+};
+
+MemoryManager.getAccessPoint = (roomName, sourceId, accessPointId) => {
+	return Memory.roomInfos[roomName].sourceInfos[sourceId].accessPoints[accessPointId];
+};
+
+MemoryManager.getOpenAccessPoint = (roomName, creepId) => {
+	const sourceInfos = Memory.roomInfos[roomName].sourceInfos;
+	for (const sourceId of Object.keys(sourceInfos)) {
+		const accessPoints = sourceInfos[sourceId].accessPoints;
+
+		for (const accessPointId of Object.keys(accessPoints)) {
+			if (!accessPoints[accessPointId].creepId) {
+				accessPoints[accessPointId].creepId = creepId;
+				return {
+					sourceId: sourceId,
+					accessPointId: accessPointId
+				};
+			}
+		}
+	}
 };
 
 
