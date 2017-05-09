@@ -10,14 +10,16 @@ const AccessPoint = require('./AccessPoint');
  *		roomInfos: {
  *			roomName0: {
  *				energyStructureInfos: {
- *					structureId0: {
- *						energyCapacity: 100,
- *						energy: 42,
- *						needsEnergy: true,
- *						transfers: {
- *							creepId0: 42
- *						}
- *					}
+ *					spawns: {
+ *						structureId0: {
+ *							energyCapacity: 100,
+ *						 	energy: 42,
+ *						  needsEnergy: true,
+ *						  transfers: {
+ *							 creepId0: 42
+ *						  }
+ *					    }
+ *					},
  *				},
  *				sourceInfos: {
  *					sourcdId0: {
@@ -54,7 +56,29 @@ MemoryManager.initRoomInfos = () => {
 	});
 };
 
-MemoryManager.initSourceInfos = (room) => {
+MemoryManager.updateSpawns = () => {
+	_.forIn(Memory.roomInfos, (roomInfo) => {
+		_.forIn(roomInfo.energyStructureInfos.spawns, (structureInfo, structureId) => {
+			const structure = Game.getObjectById(structureId);
+			structureInfo.energy = structure.energy;
+
+			let sum = structureInfo.energy;
+			for (const creepId of Object.keys(structureInfo.transfers)) {
+				sum += structureInfo.transfers[creepId];
+			}
+
+			if (sum < structureInfo.energyCapacity) {
+				structureInfo.needsEnergy = true;
+			}
+		});
+	});
+};
+
+MemoryManager.getRoomInfo = (roomName) => {
+	return Memory.roomInfos[roomName];
+};
+
+MemoryManager._initSourceInfos = (room) => {
 	const sourceInfos = {};
 	for (const source of room.find(FIND_SOURCES)) {
 		sourceInfos[source.id] = MemoryManager.initSourceInfo(source);
@@ -63,7 +87,7 @@ MemoryManager.initSourceInfos = (room) => {
 	return sourceInfos;
 };
 
-MemoryManager.initSourceInfo = (source) => {
+MemoryManager._initSourceInfo = (source) => {
 	const roomName = source.room.name;
 	const x = source.pos.x;
 	const y = source.pos.y;
@@ -90,7 +114,7 @@ MemoryManager.initSourceInfo = (source) => {
 	return sourceInfo;
 };
 
-MemoryManager.initEnergyStructures = (room) => {
+MemoryManager._initEnergyStructures = (room) => {
 	const structures = room.find(FIND_STRUCTURES, {
 		filter: (structure) => {
 			return (structure.structureType === STRUCTURE_EXTENSION ||
@@ -99,84 +123,72 @@ MemoryManager.initEnergyStructures = (room) => {
 	});
 
 
-	const structureInfos = {};
+	const structureInfos = {
+		spawns: {}
+	};
+
 	structures.forEach((structure) => {
-		if (!structureInfos[structure.id]) {
-			structureInfos[structure.id] = new EnergyStructureInfo(structure.energyCapacity, structure.energy);
+		switch (structure.structureType) {
+			case STRUCTURE_SPAWN:
+				structureInfos.spawns[structure.id] = new EnergyStructureInfo(structure.energyCapacity, structure.energy);
+				break;
+			default:
+				/*eslint-disable no-console */
+				console.log('Unknown energy structure type ' + structure.structureType);
 		}
 	});
 
 	return structureInfos;
 };
 
-MemoryManager.updateEnergyStructures = () => {
-	for (const roomName of Object.keys(Memory.roomInfos)) {
-		const structureInfos = Memory.roomInfos[roomName].energyStructureInfos;
-		for (const structureId of Object.keys(structureInfos)) {
-			const structureInfo = structureInfos[structureId];
-			const structure = Game.getObjectById(structureId);
-			structureInfo.energy = structure.energy;
+// MemoryManager.EnergyStructureInfos = (roomName) => {
+// 	return Memory.roomInfos[roomName].energyStructureInfos;
+// };
 
-			let sum = structureInfo.energy;
-			for (const transferCreepId of Object.keys(structureInfo.transfers)) {
-				sum += structureInfo.transfers[transferCreepId];
-			}
-
-			if (sum < structureInfo.energyCapacity) {
-				structureInfo.needsEnergy = true;
-			}
-		}
-	}
-};
-
-MemoryManager.getRoomInfo = (roomName) => {
-	return Memory.roomInfos[roomName];
-};
-
-MemoryManager.findStructureNeedingEnergy = (roomName, energy, creepId) => {
-	const structureInfos = Memory.roomInfos[roomName].energyStructureInfos;
-	for (const structureId of Object.keys(structureInfos)) {
-		const structureInfo = structureInfos[structureId];
-
-		if (structureInfo.needsEnergy) {
-			let sum = energy;
-			for (const transferCreepId of Object.keys(structureInfo.transfers)) {
-				sum += structureInfo.transfers[transferCreepId];
-			}
-
-			if (sum <= structureInfo.energyCapacity) {
-				structureInfo.transfers[creepId] = energy;
-
-				if (sum === structureInfo.energyCapacity) {
-					structureInfo.needsEnergy = false;
-				}
-
-				return structureId;
-			}
-		}
-	}
-};
-
-MemoryManager.getAccessPoint = (roomName, sourceId, accessPointId) => {
-	return Memory.roomInfos[roomName].sourceInfos[sourceId].accessPoints[accessPointId];
-};
-
-MemoryManager.getOpenAccessPoint = (roomName, creepId) => {
-	const sourceInfos = Memory.roomInfos[roomName].sourceInfos;
-	for (const sourceId of Object.keys(sourceInfos)) {
-		const accessPoints = sourceInfos[sourceId].accessPoints;
-
-		for (const accessPointId of Object.keys(accessPoints)) {
-			if (!accessPoints[accessPointId].creepId) {
-				accessPoints[accessPointId].creepId = creepId;
-				return {
-					sourceId: sourceId,
-					accessPointId: accessPointId
-				};
-			}
-		}
-	}
-};
+// MemoryManager.findStructureNeedingEnergy = (roomName, energy, creepId) => {
+// 	const structureInfos = Memory.roomInfos[roomName].energyStructureInfos;
+// 	for (const structureId of Object.keys(structureInfos)) {
+// 		const structureInfo = structureInfos[structureId];
+//
+// 		if (structureInfo.needsEnergy) {
+// 			let sum = energy;
+// 			for (const transferCreepId of Object.keys(structureInfo.transfers)) {
+// 				sum += structureInfo.transfers[transferCreepId];
+// 			}
+//
+// 			if (sum <= structureInfo.energyCapacity) {
+// 				structureInfo.transfers[creepId] = energy;
+//
+// 				if (sum === structureInfo.energyCapacity) {
+// 					structureInfo.needsEnergy = false;
+// 				}
+//
+// 				return structureId;
+// 			}
+// 		}
+// 	}
+// };
+//
+// MemoryManager.getAccessPoint = (roomName, sourceId, accessPointId) => {
+// 	return Memory.roomInfos[roomName].sourceInfos[sourceId].accessPoints[accessPointId];
+// };
+//
+// MemoryManager.getOpenAccessPoint = (roomName, creepId) => {
+// 	const sourceInfos = Memory.roomInfos[roomName].sourceInfos;
+// 	for (const sourceId of Object.keys(sourceInfos)) {
+// 		const accessPoints = sourceInfos[sourceId].accessPoints;
+//
+// 		for (const accessPointId of Object.keys(accessPoints)) {
+// 			if (!accessPoints[accessPointId].creepId) {
+// 				accessPoints[accessPointId].creepId = creepId;
+// 				return {
+// 					sourceId: sourceId,
+// 					accessPointId: accessPointId
+// 				};
+// 			}
+// 		}
+// 	}
+// };
 
 
 module.exports = MemoryManager;
