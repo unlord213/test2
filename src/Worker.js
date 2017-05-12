@@ -102,7 +102,7 @@ class Worker {
 
 		const target = Game.getObjectById(actionInfo.sourceId);
 		if (actionInfo.performing) {
-			creep.upgradeController(target);
+			creep[action](target);
 			return;
 		}
 
@@ -162,6 +162,11 @@ Worker.visualize = {
 	visualizePathStyle: {
 		stroke: '#ffffff'
 	}
+};
+
+// TODO: find way to latch onto constructor in tests and remove this method
+Worker.create = (creep) => {
+	return new Worker(creep);
 };
 
 module.exports = Worker;

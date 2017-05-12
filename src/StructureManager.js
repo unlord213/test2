@@ -16,7 +16,7 @@ StructureManager.run = () => {
 				break;
 			default:
 				/*eslint-disable no-console */
-				console.log('Unknown structure type ' + structure.structureType);
+				console.log('Unknown structure type: ' + structure.structureType);
 		}
 	});
 };

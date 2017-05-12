@@ -12,20 +12,18 @@ class EnergyManager {
 			const structureInfo = structureInfos[structureId];
 
 			if (structureInfo.needsEnergy) {
-				let sum = energy;
+				structureInfo.transfers[creepId] = energy;
+
+				let sum = structureInfo.energy + energy;
 				for (const transferCreepId of Object.keys(structureInfo.transfers)) {
 					sum += structureInfo.transfers[transferCreepId];
 				}
 
-				if (sum <= structureInfo.energyCapacity) {
-					structureInfo.transfers[creepId] = energy;
-
-					if (sum === structureInfo.energyCapacity) {
-						structureInfo.needsEnergy = false;
-					}
-
-					return structureId;
+				if (sum >= structureInfo.energyCapacity) {
+					structureInfo.needsEnergy = false;
 				}
+
+				return structureId;
 			}
 		}
 	}

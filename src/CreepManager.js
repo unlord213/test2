@@ -14,20 +14,20 @@ CreepManager.run = () => {
 		switch (creep.memory.role) {
 			case Roles.WORKER:
 				if (!creep.spawning) {
-					CreepManager._runWorker(creep.memory.actionInfo.id, new Worker(creep));
+					CreepManager._runWorker(creep.memory.actionInfo.id, Worker.create(creep));
 				}
 				break;
 			default:
 				/*eslint-disable no-console */
-				console.log('Unknown creep role ' + creep.memory.role);
+				console.log('Unknown creep role: ' + creep.memory.role);
 		}
 	});
 };
 
-CreepManager._runWorker = (actionInfoId, worker) => {
+CreepManager._runWorker = (actionId, worker) => {
 	// TODO: check returns?
 	// TODO: break into HarvestAction, IdleAction, UpgradeAction, etc
-	switch (actionInfoId) {
+	switch (actionId) {
 		case IdleActionInfo.id:
 			worker.findJob();
 			return;
@@ -41,7 +41,8 @@ CreepManager._runWorker = (actionInfoId, worker) => {
 			worker.perform('transfer');
 			return;
 		default:
-			return;
+			/*eslint-disable no-console */
+			console.log('Unknown action id: ' + actionId);
 	}
 };
 
