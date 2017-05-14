@@ -1,11 +1,14 @@
 'use strict';
 
-const IdleActionInfo = require('./IdleActionInfo');
+// const IdleActionInfo = require('./IdleActionInfo');
 const HarvestActionInfo = require('./HarvestActionInfo');
 const UpgradeControllerActionInfo = require('./UpgradeControllerActionInfo');
 const TransferActionInfo = require('./TransferActionInfo');
 const MemoryManager = require('./MemoryManager');
 const EnergyManager = require('./EnergyManager');
+const HarvestAction = require('./HarvestAction');
+const TransferAction = require('./TransferAction');
+const UpgradeControllerAction = require('./UpgradeControllerAction');
 const Roles = require('./Roles');
 
 class Worker {
@@ -61,59 +64,15 @@ class Worker {
 	}
 
 	harvest() {
-		const creep = this.creep;
-		const actionInfo = creep.memory.actionInfo;
-		const sourceId = actionInfo.sourceId;
-		const accessPoint = this.energyManager.getAccessPoint(sourceId, actionInfo.accessPointId);
-
-		if (_.sum(creep.carry) === creep.carryCapacity) {
-			accessPoint.creepId = null;
-			creep.memory.actionInfo = new IdleActionInfo(true);
-			return;
-		}
-
-		const source = Game.getObjectById(actionInfo.sourceId);
-
-		if (actionInfo.harvesting) {
-			creep.harvest(source);
-			return;
-		}
-
-		if (creep.pos.x === accessPoint.pos.x && creep.pos.y === accessPoint.pos.y) {
-			accessPoint.creepId = creep.id;
-			actionInfo.harvesting = true;
-
-			creep.harvest(source);
-			return;
-		}
-
-		const pos = new RoomPosition(accessPoint.pos.x, accessPoint.pos.y, creep.room.name);
-		creep.moveTo(pos, Worker.visualize);
+		HarvestAction.run(this.creep, this.energyManager);
 	}
 
-	perform(action) {
-		const actionInfo = creep.memory.actionInfo;
-		const creep = this.creep;
+	upgradeController() {
+		UpgradeControllerAction.run(this.creep);
+	}
 
-		if (0 === creep.carry.energy) {
-			creep.memory.actionInfo = new IdleActionInfo(false);
-			return;
-		}
-
-		const target = Game.getObjectById(actionInfo.sourceId);
-		if (actionInfo.performing) {
-			creep[action](target);
-			return;
-		}
-
-		const result = creep[action](target);
-		if (OK === result) {
-			actionInfo.performing = true;
-		}
-
-		if (ERR_NOT_IN_RANGE === result) {
-			creep.moveTo(target, Worker.visualize);
-		}
+	transfer() {
+		TransferAction.run(this.creep);
 	}
 
 	_findEnergyTransfer() {

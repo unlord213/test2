@@ -105,24 +105,24 @@ desc('CreepManager', () => {
 		it('should have worker upgrade controller', () => {
 			const actionId = UpgradeControllerActionInfo.id;
 			const worker = {
-				perform: sandbox.stub()
+				upgradeController: sandbox.stub()
 			};
 
 			CreepManager._runWorker(actionId, worker);
 
-			expect(worker.perform).to.have.been.calledWith('upgradeController');
+			expect(worker.upgradeController).to.have.been.called;
 			expect(console.log).to.not.have.been.called;
 		});
 
 		it('should have worker transfer', () => {
 			const actionId = TransferActionInfo.id;
 			const worker = {
-				perform: sandbox.stub()
+				transfer: sandbox.stub()
 			};
 
 			CreepManager._runWorker(actionId, worker);
 
-			expect(worker.perform).to.have.been.calledWith('transfer');
+			expect(worker.transfer).to.have.been.called;
 			expect(console.log).to.not.have.been.called;
 		});
 

@@ -26,7 +26,6 @@ CreepManager.run = () => {
 
 CreepManager._runWorker = (actionId, worker) => {
 	// TODO: check returns?
-	// TODO: break into HarvestAction, IdleAction, UpgradeAction, etc
 	switch (actionId) {
 		case IdleActionInfo.id:
 			worker.findJob();
@@ -35,10 +34,10 @@ CreepManager._runWorker = (actionId, worker) => {
 			worker.harvest();
 			return;
 		case UpgradeControllerActionInfo.id:
-			worker.perform('upgradeController');
+			worker.upgradeController();
 			return;
 		case TransferActionInfo.id:
-			worker.perform('transfer');
+			worker.transfer();
 			return;
 		default:
 			/*eslint-disable no-console */

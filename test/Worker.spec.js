@@ -22,20 +22,6 @@ desc('Worker', () => {
 		it('should find move to spawn if no source', () => {});
 	});
 
-	describe('harvest', () => {
-		it('should stop harvesting', () => {});
-		it('should keep harvesting', () => {});
-		it('should start harvesting', () => {});
-		it('should move to access point', () => {});
-	});
-
-	describe('perform', () => {
-		it('should stop', () => {});
-		it('should keep performing', () => {});
-		it('should start performing', () => {});
-		it('should move to target', () => {});
-	});
-
 	describe('_findEnergyTransfer', () => {
 		it('should set upgrade controller action if no other creep upgrading', () => {});
 		it('should set transfer action', () => {});
