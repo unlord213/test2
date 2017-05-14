@@ -2,63 +2,110 @@
 
 require('./lib/common.js');
 
+const IdleActionInfo = require('../src/IdleActionInfo');
+const MemoryManager = require('../src/MemoryManager');
+const EnergyManager = require('../src/EnergyManager');
 const CreepManager = require('../src/CreepManager');
 const Roles = require('../src/Roles');
 const Worker = require('../src/Worker');
-const IdleActionInfo = require('../src/IdleActionInfo');
-const HarvestActionInfo = require('../src/HarvestActionInfo');
-const UpgradeControllerActionInfo = require('../src/UpgradeControllerActionInfo');
-const TransferActionInfo = require('../src/TransferActionInfo');
 
 desc('CreepManager', () => {
 	describe('run', () => {
-		let create;
 		let creep;
 		let actionId;
+		let roomName;
+		let roomInfo;
+		let worker;
+		let actionInfo;
+		let energyManager;
+		let accessPoint;
 
 		beforeEach(() => {
 			sandbox.stub(console, 'log');
-			sandbox.stub(CreepManager, '_runWorker');
-			create = sandbox.stub(Worker, 'create');
 
 			actionId = 'actionId0';
+			actionInfo = {
+				id: actionId
+			};
+			roomName = 'roomName0';
+
 			creep = {
 				spawning: false,
+				room: {
+					name: roomName
+				},
 				memory: {
 					role: Roles.WORKER,
-					actionInfo: {
-						id: actionId
-					}
+					actionInfo: actionInfo
 				}
 			};
 
 			Game.creeps = {
 				creepId0: creep
 			};
+
+			worker = {
+				foo: 'bar',
+				run: sandbox.stub()
+			};
+			sandbox.stub(Worker, 'create').returns(worker);
+
+			sandbox.stub(CreepManager, 'findJob');
+
+			roomInfo = {
+				bar: 'foo'
+			};
+			sandbox.stub(MemoryManager, 'getRoomInfo').returns(roomInfo);
+
+			energyManager = {
+				getAccessPoint: sandbox.stub()
+			};
+
+			accessPoint = {
+				pos: {}
+			};
+			energyManager.getAccessPoint.returns(accessPoint);
+			sandbox.stub(EnergyManager, 'create').returns(energyManager);
 		});
 
-		it('should run worker', () => {
-			const worker = {
-				foo: 'bar'
-			};
-			create.withArgs(creep).returns(worker);
+		it('should find job for idle worker', () => {
+			CreepManager.findJob.returns(undefined);
+			creep.memory.actionInfo.id = IdleActionInfo.id;
 
 			CreepManager.run();
 
-			expect(Worker.create).to.have.been.calledWith(creep);
-			expect(CreepManager._runWorker).to.have.been.calledWith(actionId, worker);
-
-			/*eslint-disable no-console */
-			expect(console.log).to.not.have.been.called;
+			expect(MemoryManager.getRoomInfo).to.have.been.calledWith(roomName);
+			expect(EnergyManager.create).to.have.been.calledWith(roomInfo);
+			expect(CreepManager.findJob).to.have.been.calledWith(creep);
+			expect(creep.memory.actionInfo).to.eql(actionInfo);
 		});
 
-		it('should run worker', () => {
+		it('should set new action info for idle worker', () => {
+			const newActionInfo = {
+				bar: 'foo'
+			};
+			CreepManager.findJob.returns(newActionInfo);
+			creep.memory.actionInfo.id = IdleActionInfo.id;
+
+			CreepManager.run();
+
+			expect(creep.memory.actionInfo).to.eql(newActionInfo);
+		});
+
+		it('should not run spawning creep', () => {
 			creep.spawning = true;
 			CreepManager.run();
 
 			expect(Worker.create).to.not.have.been.called;
-			expect(CreepManager._runWorker).to.not.have.been.called;
+		});
 
+		it('should run worker', () => {
+			CreepManager.run();
+
+			expect(Worker.create).to.have.been.calledWith(creep);
+			expect(worker.run).to.have.been.called;
+
+			expect(CreepManager.findJob).to.not.have.been.called;
 			/*eslint-disable no-console */
 			expect(console.log).to.not.have.been.called;
 		});
@@ -69,70 +116,7 @@ desc('CreepManager', () => {
 
 			/*eslint-disable no-console */
 			expect(console.log).to.have.been.calledWith('Unknown creep role: foo');
-			expect(CreepManager._runWorker).to.not.have.been.called;
-		});
-	});
-
-	describe('_runWorker', () => {
-		beforeEach(() => {
-			sandbox.stub(console, 'log');
-		});
-
-		it('should have worker find job', () => {
-			const actionId = IdleActionInfo.id;
-			const worker = {
-				findJob: sandbox.stub()
-			};
-
-			CreepManager._runWorker(actionId, worker);
-
-			expect(worker.findJob).to.have.been.called;
-			expect(console.log).to.not.have.been.called;
-		});
-
-		it('should have worker harvest', () => {
-			const actionId = HarvestActionInfo.id;
-			const worker = {
-				harvest: sandbox.stub()
-			};
-
-			CreepManager._runWorker(actionId, worker);
-
-			expect(worker.harvest).to.have.been.called;
-			expect(console.log).to.not.have.been.called;
-		});
-
-		it('should have worker upgrade controller', () => {
-			const actionId = UpgradeControllerActionInfo.id;
-			const worker = {
-				upgradeController: sandbox.stub()
-			};
-
-			CreepManager._runWorker(actionId, worker);
-
-			expect(worker.upgradeController).to.have.been.called;
-			expect(console.log).to.not.have.been.called;
-		});
-
-		it('should have worker transfer', () => {
-			const actionId = TransferActionInfo.id;
-			const worker = {
-				transfer: sandbox.stub()
-			};
-
-			CreepManager._runWorker(actionId, worker);
-
-			expect(worker.transfer).to.have.been.called;
-			expect(console.log).to.not.have.been.called;
-		});
-
-		it('should log on unknown action id', () => {
-			const actionId = 'foo';
-			const worker = {};
-
-			CreepManager._runWorker(actionId, worker);
-
-			expect(console.log).to.have.been.calledWith('Unknown action id: foo');
+			expect(worker.run).to.not.have.been.called;
 		});
 	});
 });

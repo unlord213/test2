@@ -50,4 +50,9 @@ class EnergyManager {
 	}
 }
 
+// TODO: find way to latch onto constructor in tests and remove this method
+EnergyManager.create = (roomInfo) => {
+	return new EnergyManager(roomInfo);
+};
+
 module.exports = EnergyManager;

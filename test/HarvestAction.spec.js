@@ -2,9 +2,11 @@
 
 require('./lib/common.js');
 
-// const Worker = require('../src/Worker');
+const Worker = require('../src/Worker');
 const IdleActionInfo = require('../src/IdleActionInfo');
 const HarvestAction = require('../src/HarvestAction');
+const MemoryManager = require('../src/MemoryManager');
+const EnergyManager = require('../src/EnergyManager');
 
 desc('HarvestAction', () => {
 	describe('run', () => {
@@ -14,6 +16,7 @@ desc('HarvestAction', () => {
 		let accessPoint;
 		let source;
 		let roomName;
+		let roomInfo;
 
 		beforeEach(() => {
 			creepId = 'creepId0';
@@ -36,6 +39,16 @@ desc('HarvestAction', () => {
 				moveTo: sandbox.stub()
 			};
 
+			source = {
+				foo: 'bar'
+			};
+			sandbox.stub(Game, 'getObjectById').returns(source);
+
+			roomInfo = {
+				bar: 'foo'
+			};
+			sandbox.stub(MemoryManager, 'getRoomInfo').returns(roomInfo);
+
 			energyManager = {
 				getAccessPoint: sandbox.stub()
 			};
@@ -44,11 +57,13 @@ desc('HarvestAction', () => {
 				pos: {}
 			};
 			energyManager.getAccessPoint.returns(accessPoint);
+			sandbox.stub(EnergyManager, 'create').returns(energyManager);
+		});
 
-			source = {
-				foo: 'bar'
-			};
-			sandbox.stub(Game, 'getObjectById').returns(source);
+		it('should create energy manager', () => {
+			HarvestAction.run(creep, energyManager);
+			expect(MemoryManager.getRoomInfo).to.have.been.calledWith(roomName);
+			expect(EnergyManager.create).to.have.been.calledWith(roomInfo);
 		});
 
 		it('should stop harvesting', () => {

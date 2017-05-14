@@ -198,4 +198,14 @@ desc('EnergyManager', () => {
 			});
 		});
 	});
+
+	describe('create', () => {
+		it('should create', () => {
+			const roomInfo = {
+				foo: 'bar'
+			};
+			const actual = EnergyManager.create(roomInfo);
+			expect(actual).to.eql(new EnergyManager(roomInfo));
+		});
+	});
 });
