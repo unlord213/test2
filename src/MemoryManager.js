@@ -18,7 +18,7 @@ const AccessPoint = require('./AccessPoint');
  *						  transfers: {
  *							 creepId0: 42
  *						  }
- *					    }
+ *					  }
  *					},
  *				},
  *				sourceInfos: {
