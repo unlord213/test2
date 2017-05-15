@@ -1,37 +1,44 @@
 'use strict';
 
+const MemoryManager = require('./MemoryManager');
+
 class Reporter {}
 Reporter.report = () => {
 	// TODO: add cpu/memory usage
 	/*eslint-disable no-console */
+	console.log(Reporter.SPAN_PURPLE + 'Tick ' + Game.time + Reporter.SPAN_CLOSE);
+	console.log(Object.keys(Game.rooms).length + ' rooms');
 
-	console.log(Reporter.SPAN_PURPLE + Game.time + Reporter.SPAN_CLOSE);
-	console.log(Object.keys(Memory.roomInfos).size + ' rooms');
+	// _.forIn(Game.rooms, (room, roomName) => {
+	for (const roomName of Object.keys(Game.rooms)) {
+		const roomInfo = MemoryManager.getRoomInfo(roomName);
 
-	_.forIn(Memory.roomInfos, (roomInfo, roomName) => {
+		if (!roomInfo) {
+			continue;
+		}
+
 		console.log(Reporter.SPAN_ORANGE + roomName + Reporter.SPAN_CLOSE);
-
 		const spawns = roomInfo.energyStructures.spawns;
-		const sources = roomInfo.energyStructures.sourceInfos;
+		const sources = roomInfo.sourceInfos;
 
-		console.log(Object.keys(spawns).length + 'spawns, ' + Object.keys(sources).length + 'source');
-
+		console.log(Reporter.SPAN_GREEN + Object.keys(spawns).length + ' spawns' + Reporter.SPAN_CLOSE);
 		_.forIn(spawns, (structureInfo, structureId) => {
-			console.log('spawn ' + structureId + ': needs energy - ' + structureInfo.needsEnergy + ', ' + Object.keys(structureInfo.transfers).length + ' transfers');
+			// TODO: add total energy transfering
+			console.log(structureId + ': ' + structureInfo.energy + '/' + structureInfo.energyCapacity + ' energy, ' + Object.keys(structureInfo.transfers).length + ' transfers');
 		});
 
+		console.log(Reporter.SPAN_GREEN + Object.keys(sources).length + ' sources' + Reporter.SPAN_CLOSE);
 		_.forIn(sources, (sourceInfo, sourceId) => {
 			const openAccessPoints = _.pickBy(sourceInfo.accessPoints, (accessPoint) => {
-				return accessPoint.creepId;
+				return 0 === Object.keys(accessPoint).length;
 			});
-
-			console.log('source ' + sourceId + ': ' + Object.keys(openAccessPoints).length + ' open access points');
+			console.log(sourceId + ': ' + Object.keys(openAccessPoints).length + ' open access points');
 		});
-	});
+	}
 
 	console.log(Reporter.SPAN_ORANGE + 'Creeps' + Reporter.SPAN_CLOSE);
 	_.forIn(Game.creeps, (creep, creepName) => {
-		console.log(creepName + ':' + JSON.stringify(creep.memory.actionInfo));
+		console.log(creepName + ': ' + JSON.stringify(creep.memory.actionInfo));
 	});
 };
 

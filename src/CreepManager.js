@@ -43,7 +43,7 @@ CreepManager.findJob = (creep, energyManager) => {
 		return CreepManager._findEnergyTarget(creep, energyManager);
 	}
 
-	return this._findSource(creep, energyManager);
+	return CreepManager._findSource(creep, energyManager);
 };
 
 CreepManager._findSource = (creep, energyManager) => {

@@ -18,6 +18,7 @@ class Worker {
 		const actionId = this.creep.memory.actionInfo.id;
 
 		// TODO: check returns?
+		// TODO: introduce map of action id to action to remove switches on action id
 		switch (actionId) {
 			case IdleActionInfo.id:
 				this._moveToSpawn();

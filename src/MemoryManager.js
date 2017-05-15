@@ -36,6 +36,7 @@ const AccessPoint = require('./AccessPoint');
  *	}
  */
 
+// TODO: change to memoryupdater and merge energystructuremanager and sourcemanager into memorymanager
 class MemoryManager {}
 MemoryManager.initRoomInfos = () => {
 	if (!Memory.roomInfos) {
@@ -76,6 +77,7 @@ MemoryManager.updateSpawns = () => {
 	});
 };
 
+// TODO: is this method necessary?
 MemoryManager.getRoomInfo = (roomName) => {
 	return Memory.roomInfos[roomName];
 };

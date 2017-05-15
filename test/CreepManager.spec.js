@@ -8,6 +8,7 @@ const EnergyManager = require('../src/EnergyManager');
 const CreepManager = require('../src/CreepManager');
 const Roles = require('../src/Roles');
 const Worker = require('../src/Worker');
+const HarvestActionInfo = require('../src/HarvestActionInfo');
 
 desc('CreepManager', () => {
 	describe('run', () => {
@@ -118,5 +119,98 @@ desc('CreepManager', () => {
 			expect(console.log).to.have.been.calledWith('Unknown creep role: foo');
 			expect(worker.run).to.not.have.been.called;
 		});
+	});
+
+	describe('findJob', () => {
+		let creep;
+		let energyManager;
+
+		beforeEach(() => {
+			creep = {
+				memory: {
+					actionInfo: {}
+				}
+			};
+			energyManager = {
+				foobar: 'barfoo'
+			};
+
+			sandbox.stub(CreepManager, '_findEnergyTarget');
+			sandbox.stub(CreepManager, '_findSource');
+		});
+
+		it('should find energy target', () => {
+			creep.memory.actionInfo.full = true;
+
+			const energyTarget = {
+				foo: 'bar'
+			};
+			CreepManager._findEnergyTarget.returns(energyTarget);
+
+			const actual = CreepManager.findJob(creep, energyManager);
+			expect(actual).to.eql(energyTarget);
+
+			expect(CreepManager._findEnergyTarget).to.have.been.calledWith(creep, energyManager);
+			expect(CreepManager._findSource).to.not.have.been.called;
+		});
+
+		it('should find source', () => {
+			creep.memory.actionInfo.full = false;
+
+			const source = {
+				foo: 'bar'
+			};
+			CreepManager._findSource.returns(source);
+
+			const actual = CreepManager.findJob(creep, energyManager);
+			expect(actual).to.eql(source);
+
+			expect(CreepManager._findSource).to.have.been.calledWith(creep, energyManager);
+			expect(CreepManager._findEnergyTarget).to.not.have.been.called;
+		});
+	});
+
+	describe('_findSource', () => {
+		let creep;
+		let energyManager;
+
+		beforeEach(() => {
+			creep = {
+				memory: {
+					actionInfo: {}
+				}
+			};
+			energyManager = {
+				foobar: 'barfoo',
+				getOpenAccessPoint: sandbox.stub()
+			};
+		});
+
+		it('should return harvest action', () => {
+			const accessPoint = {
+				sourceId: 'sourceId0',
+				accessPointId: 'accessPointId0',
+			};
+			energyManager.getOpenAccessPoint.returns(accessPoint);
+
+			const actionInfo = CreepManager._findSource(creep, energyManager);
+			expect(actionInfo).to.eql(new HarvestActionInfo('sourceId0', accessPoint.accessPointId));
+		});
+
+		it('should return undefined', () => {
+			energyManager.getOpenAccessPoint.returns(undefined);
+
+			const actionInfo = CreepManager._findSource(creep, energyManager);
+			expect(actionInfo).to.eql(undefined);
+
+		});
+	});
+
+	describe('_findEnergyTarget', () => {
+		it('should return upgrade controller action when no creep is upgrading controller', () => {});
+
+		it('should return transfer action', () => {});
+
+		it('should return upgrade controller action when no structures need energy', () => {});
 	});
 });
