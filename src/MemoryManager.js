@@ -52,8 +52,19 @@ MemoryManager.initRoomInfos = () => {
 		console.log('Memory manager init room ' + roomName);
 
 		const room = Game.rooms[roomName];
+
+		const sourceInfos = MemoryManager._initSourceInfos(room);
+		let maxWorkers = 0;
+		_.forIn(sourceInfos, (sourceInfo) => {
+			maxWorkers += Object.keys(sourceInfo.accessPoints).length;
+		});
+
+		maxWorkers = Math.ceil(maxWorkers * 1.5);
+
 		Memory.roomInfos[roomName] = {
-			sourceInfos: MemoryManager._initSourceInfos(room),
+			maxWorkers: maxWorkers,
+			numWorkers: 0,
+			sourceInfos: sourceInfos,
 			energyStructureInfos: MemoryManager._initEnergyStructures(room)
 		};
 	}
@@ -74,6 +85,33 @@ MemoryManager.updateSpawns = () => {
 				structureInfo.needsEnergy = true;
 			}
 		});
+	});
+};
+
+MemoryManager.cleanup = () => {
+	_.forIn(Memory.creeps, (creep, creepName) => {
+		if (!Game.creeps[creepName]) {
+			/*eslint-disable no-console */
+			console.log('Clearing non-existing creep memory: ' + creepName);
+			delete Memory.creeps[creepName];
+
+			const roomInfo = Memory.roomInfos[creep.room.name];
+			_.forIn(roomInfo.energyStructureInfos.spawns, (spawn) => {
+				_.forIn(spawn.transfers, (transfer, creepId) => {
+					if (creepId === creep.id) {
+						delete spawn.transfers[creepId];
+					}
+				});
+			});
+
+			_.forIn(roomInfo.sourceInfos, (sourceInfo) => {
+				_.forIn(sourceInfo.accessPoints, (accessPoint) => {
+					if (accessPoint.creepId === creep.id) {
+						accessPoint.creepId = null;
+					}
+				});
+			});
+		}
 	});
 };
 

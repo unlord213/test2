@@ -10,6 +10,7 @@ desc('main', () => {
 	beforeEach(() => {
 		sandbox.stub(MemoryManager, 'initRoomInfos');
 		sandbox.stub(MemoryManager, 'updateSpawns');
+		sandbox.stub(MemoryManager, 'cleanup');
 		sandbox.stub(StructureManager, 'run');
 		sandbox.stub(CreepManager, 'run');
 		sandbox.stub(Reporter, 'report');
@@ -22,6 +23,18 @@ desc('main', () => {
 		expect(MemoryManager.updateSpawns).to.have.been.called;
 	});
 
+	it('should cleanup memory', () => {
+		Game.time = 19;
+		main.loop();
+		expect(MemoryManager.cleanup).to.not.have.been.called;
+	});
+
+	it('should not cleanup memory', () => {
+		Game.time = 20;
+		main.loop();
+		expect(MemoryManager.cleanup).to.have.been.called;
+	});
+
 	it('should run managers', () => {
 		main.loop();
 
@@ -30,13 +43,13 @@ desc('main', () => {
 	});
 
 	it('should not report', () => {
-		Game.time = 19;
+		Game.time = 49;
 		main.loop();
 		expect(Reporter.report).to.not.have.been.called;
 	});
 
 	it('should not report', () => {
-		Game.time = 20;
+		Game.time = 50;
 		main.loop();
 		expect(Reporter.report).to.have.been.called;
 	});

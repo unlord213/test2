@@ -73,7 +73,7 @@ desc('MemoryManager', () => {
 			getTerrainAt.withArgs(6, 5, 'roomName1').returns('swamp');
 			getTerrainAt.withArgs(6, 4, 'roomName1').returns('wall');
 			getTerrainAt.withArgs(5, 6, 'roomName1').returns('plain');
-			getTerrainAt.withArgs(5, 4, 'roomName1').returns('wall');
+			getTerrainAt.withArgs(5, 4, 'roomName1').returns('plain');
 			getTerrainAt.withArgs(4, 6, 'roomName1').returns('wall');
 			getTerrainAt.withArgs(4, 5, 'roomName1').returns('plain');
 			getTerrainAt.withArgs(4, 4, 'roomName1').returns('wall');
@@ -102,10 +102,13 @@ desc('MemoryManager', () => {
 			const sourceInfo1_0 = new SourceInfo();
 			sourceInfo1_0.accessPoints['1'] = new AccessPoint(new Position(6, 5));
 			sourceInfo1_0.accessPoints['3'] = new AccessPoint(new Position(5, 6));
+			sourceInfo1_0.accessPoints['4'] = new AccessPoint(new Position(5, 4));
 			sourceInfo1_0.accessPoints['6'] = new AccessPoint(new Position(4, 5));
 
 			expect(Memory.roomInfos).to.eql({
 				roomName0: {
+					maxWorkers: 5,
+					numWorkers: 0,
 					sourceInfos: {
 						sourceid0_0: sourceInfo0_0,
 						sourceid0_1: sourceInfo0_1
@@ -117,6 +120,8 @@ desc('MemoryManager', () => {
 					}
 				},
 				roomName1: {
+					maxWorkers: 6,
+					numWorkers: 0,
 					sourceInfos: {
 						sourceid1_0: sourceInfo1_0
 					},
@@ -239,6 +244,172 @@ desc('MemoryManager', () => {
 			MemoryManager.updateSpawns();
 
 			expect(Memory.roomInfos.roomName0.energyStructureInfos.spawns.structureId0.needsEnergy).to.eql(true);
+		});
+	});
+
+	describe('cleaup', () => {
+		let creep0;
+		let creep2;
+
+		beforeEach(() => {
+			Game.creeps = {
+				creepName0: {},
+				creepName2: {},
+			};
+
+			creep0 = {
+				foo: 'bar'
+			};
+			creep2 = {
+				bar: 'foo'
+			};
+
+			Memory.creeps = {
+				creepName0: creep0,
+				creepName1: {
+					id: 'creepId1',
+					room: {
+						name: 'roomName0'
+					}
+				},
+				creepName2: creep2
+			};
+
+			Memory.roomInfos = {
+				roomName0: {
+					energyStructureInfos: {},
+					sourseInfos: {}
+				}
+			};
+
+			sandbox.stub(console, 'log');
+		});
+
+		it('should delete creep from memory', () => {
+			MemoryManager.cleanup();
+
+			expect(console.log).to.have.been.calledWith('Clearing non-existing creep memory: creepName1');
+			expect(Memory.creeps).to.eql({
+				creepName0: creep0,
+				creepName2: creep2
+			});
+		});
+
+		it('should delete creep from transfer', () => {
+			const transfer0_0 = {
+				foo: 'bar'
+			};
+			const transfer0_2 = {
+				bar: 'foo'
+			};
+
+			const transfer2_0 = {
+				foobar: 'foobar'
+			};
+			const transfer2_2 = {
+				barfoo: 'barfoo'
+			};
+
+			Memory.roomInfos.roomName0.energyStructureInfos = {
+				spawns: {
+					spawnId0: {
+						transfers: {
+							creepId0: transfer0_0,
+							creepId1: {},
+							creepId2: transfer0_2
+						}
+					},
+					spawnId1: {
+						transfers: {
+							creepId0: transfer2_0,
+							creepId1: {},
+							creepId2: transfer2_2
+						}
+					}
+				}
+			};
+
+			MemoryManager.cleanup();
+
+			expect(Memory.roomInfos.roomName0.energyStructureInfos).to.eql({
+				spawns: {
+					spawnId0: {
+						transfers: {
+							creepId0: transfer0_0,
+							creepId2: transfer0_2
+						}
+					},
+					spawnId1: {
+						transfers: {
+							creepId0: transfer2_0,
+							creepId2: transfer2_2
+						}
+					}
+				}
+			});
+		});
+
+		it('should delete creep from access point', () => {
+			Memory.roomInfos.roomName0.sourceInfos = {
+				sourceId0: {
+					accessPoints: {
+						'0': {
+							creepId: 'creepId0',
+						},
+						'1': {
+							creepId: 'creepId1',
+						},
+						'2': {
+							creepId: 'creepId2',
+						},
+						'3': {
+							creepId: 'creepId1',
+						}
+					}
+				},
+				sourceId1: {
+					accessPoints: {
+						'9': {
+							creepId: 'creepId1'
+						},
+						'8': {
+							creepId: 'creepId0'
+						}
+					}
+				}
+			};
+
+			MemoryManager.cleanup();
+
+			expect(Memory.roomInfos.roomName0.sourceInfos).to.eql({
+
+				sourceId0: {
+					accessPoints: {
+						'0': {
+							creepId: 'creepId0',
+						},
+						'1': {
+							creepId: null,
+						},
+						'2': {
+							creepId: 'creepId2',
+						},
+						'3': {
+							creepId: null,
+						}
+					}
+				},
+				sourceId1: {
+					accessPoints: {
+						'9': {
+							creepId: null
+						},
+						'8': {
+							creepId: 'creepId0'
+						}
+					}
+				}
+			});
 		});
 	});
 

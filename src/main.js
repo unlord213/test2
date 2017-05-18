@@ -11,10 +11,14 @@ module.exports.loop = function() {
 	MemoryManager.initRoomInfos();
 	MemoryManager.updateSpawns();
 
+	if (Game.time % 20 === 0) {
+		MemoryManager.cleanup();
+	}
+
 	StructureManager.run();
 	CreepManager.run();
 
-	if (Game.time % 20 === 0) {
+	if (Game.time % 50 === 0) {
 		Reporter.report();
 	}
 };
