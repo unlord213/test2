@@ -9,6 +9,7 @@ const Roles = require('./Roles');
 /**
  *	Memory = {
  *		roomInfos: {
+ *			upgradeCreepId: 'creepId0',
  *			roomName0: {
  *				energyStructureInfos: {
  *					spawns: {
@@ -76,12 +77,12 @@ MemoryManager.updateSpawns = () => {
 		_.forIn(roomInfo.energyStructureInfos.spawns, (structureInfo, structureId) => {
 			const structure = Game.getObjectById(structureId);
 			structureInfo.energy = structure.energy;
-
 			let sum = structureInfo.energy;
 			for (const creepId of Object.keys(structureInfo.transfers)) {
 				sum += structureInfo.transfers[creepId];
 			}
 
+			// console.log('update spawn ' + structure.energy + ' energy, ' + sum + ' in transfers');
 			if (sum < structureInfo.energyCapacity) {
 				structureInfo.needsEnergy = true;
 			}
@@ -91,20 +92,25 @@ MemoryManager.updateSpawns = () => {
 
 MemoryManager.cleanup = () => {
 	_.forIn(Memory.creeps, (creep, creepName) => {
+		console.log(creepName, JSON.stringify(creep));
 		if (!Game.creeps[creepName]) {
 			/*eslint-disable no-console */
 			console.log('Clearing non-existing creep memory: ' + creepName);
 
-			const roomInfo = Memory.roomInfos[creep.room.name];
-			if (creep.memory.role === Roles.WORKER) {
+			//TODO: how to get room name
+			const roomInfo = Memory.roomInfos[creep.room];
+			if (creep.role === Roles.WORKER) {
 				--roomInfo.numWorkers;
 			}
 
-			delete Memory.creeps[creepName];
+			if (roomInfo.upgradeCreepId === creepName) {
+				// console.log('deleting');
+				roomInfo.upgradeCreepId = null;
+			}
 
 			_.forIn(roomInfo.energyStructureInfos.spawns, (spawn) => {
 				_.forIn(spawn.transfers, (transfer, creepId) => {
-					if (creepId === creep.id) {
+					if (creepId === creepName) {
 						delete spawn.transfers[creepId];
 					}
 				});
@@ -112,11 +118,13 @@ MemoryManager.cleanup = () => {
 
 			_.forIn(roomInfo.sourceInfos, (sourceInfo) => {
 				_.forIn(sourceInfo.accessPoints, (accessPoint) => {
-					if (accessPoint.creepId === creep.id) {
+					if (accessPoint.creepId === creepName) {
 						accessPoint.creepId = null;
 					}
 				});
 			});
+
+			delete Memory.creeps[creepName];
 		}
 	});
 };

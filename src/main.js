@@ -21,4 +21,8 @@ module.exports.loop = function() {
 	if (Game.time % 50 === 0) {
 		Reporter.report();
 	}
+
+	if (Game.time % 20 === 0) {
+		console.log('Memory dump:' + JSON.stringify(Memory));
+	}
 };

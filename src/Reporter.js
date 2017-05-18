@@ -31,7 +31,9 @@ Reporter.report = () => {
 		_.forIn(sources, (sourceInfo, sourceId) => {
 			let openAccessPoints = 0;
 			_.forIn(sourceInfo.accessPoints, (accessPoint) => {
-				openAccessPoints += 0 === Object.keys(accessPoint).length;
+				if (!accessPoint.creepId) {
+					++openAccessPoints;
+				}
 			});
 			console.log(sourceId + ': ' + openAccessPoints + ' open access points');
 		});

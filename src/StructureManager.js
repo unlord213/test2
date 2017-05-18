@@ -9,15 +9,20 @@ class StructureManager {}
 StructureManager.run = () => {
 	_.forIn(Game.structures, (structure) => {
 		const roomInfo = MemoryManager.getRoomInfo(structure.room.name);
-
+		// console.log('********************************8');
 		switch (structure.structureType) {
 			case STRUCTURE_SPAWN:
+				// console.log('spawmn has ' + roomInfo.numWorkers + '/' + roomInfo.maxWorkers);
 				if (roomInfo.numWorkers < roomInfo.maxWorkers) {
-					structure.createCreep([WORK, CARRY, MOVE], undefined, {
+					const creepName = structure.createCreep([WORK, CARRY, MOVE], undefined, {
 						role: Roles.WORKER,
-						actionInfo: new IdleActionInfo(false)
+						actionInfo: new IdleActionInfo(false),
+						room: structure.room.name
 					});
-					++roomInfo.numWorkers;
+					if (_.isString(creepName)) {
+						console.log('Created creep ' + creepName);
+						++roomInfo.numWorkers;
+					}
 				}
 				break;
 			case STRUCTURE_CONTROLLER:
