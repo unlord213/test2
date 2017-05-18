@@ -22,7 +22,7 @@ module.exports.loop = function() {
 		Reporter.report();
 	}
 
-	if (Game.time % 20 === 0) {
-		console.log('Memory dump:' + JSON.stringify(Memory));
-	}
+	// if (Game.time % 50 === 0) {
+	// 	console.log('Memory dump:' + JSON.stringify(Memory));
+	// }
 };

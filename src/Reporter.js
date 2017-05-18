@@ -9,7 +9,6 @@ Reporter.report = () => {
 	console.log(Reporter.SPAN_PURPLE + 'Tick ' + Game.time + Reporter.SPAN_CLOSE);
 	console.log(Object.keys(Game.rooms).length + ' rooms');
 
-	// _.forIn(Game.rooms, (room, roomName) => {
 	for (const roomName of Object.keys(Game.rooms)) {
 		const roomInfo = MemoryManager.getRoomInfo(roomName);
 

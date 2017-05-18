@@ -82,7 +82,6 @@ MemoryManager.updateSpawns = () => {
 				sum += structureInfo.transfers[creepId];
 			}
 
-			// console.log('update spawn ' + structure.energy + ' energy, ' + sum + ' in transfers');
 			if (sum < structureInfo.energyCapacity) {
 				structureInfo.needsEnergy = true;
 			}
@@ -97,14 +96,12 @@ MemoryManager.cleanup = () => {
 			/*eslint-disable no-console */
 			console.log('Clearing non-existing creep memory: ' + creepName);
 
-			//TODO: how to get room name
 			const roomInfo = Memory.roomInfos[creep.room];
 			if (creep.role === Roles.WORKER) {
 				--roomInfo.numWorkers;
 			}
 
 			if (roomInfo.upgradeCreepId === creepName) {
-				// console.log('deleting');
 				roomInfo.upgradeCreepId = null;
 			}
 
