@@ -2,7 +2,7 @@
 
 require('./lib/common.js');
 
-const Worker = require('../src/Worker');
+// const Worker = require('../src/Worker');
 const IdleActionInfo = require('../src/IdleActionInfo');
 const HarvestAction = require('../src/HarvestAction');
 const MemoryManager = require('../src/MemoryManager');

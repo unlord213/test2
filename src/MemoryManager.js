@@ -4,6 +4,7 @@ const Position = require('./Position');
 const SourceInfo = require('./SourceInfo');
 const EnergyStructureInfo = require('./EnergyStructureInfo');
 const AccessPoint = require('./AccessPoint');
+const Roles = require('./Roles');
 
 /**
  *	Memory = {
@@ -93,9 +94,14 @@ MemoryManager.cleanup = () => {
 		if (!Game.creeps[creepName]) {
 			/*eslint-disable no-console */
 			console.log('Clearing non-existing creep memory: ' + creepName);
-			delete Memory.creeps[creepName];
 
 			const roomInfo = Memory.roomInfos[creep.room.name];
+			if (creep.memory.role === Roles.WORKER) {
+				--roomInfo.numWorkers;
+			}
+
+			delete Memory.creeps[creepName];
+
 			_.forIn(roomInfo.energyStructureInfos.spawns, (spawn) => {
 				_.forIn(spawn.transfers, (transfer, creepId) => {
 					if (creepId === creep.id) {

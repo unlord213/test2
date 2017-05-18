@@ -1,7 +1,7 @@
 'use strict';
 
 const IdleActionInfo = require('./IdleActionInfo');
-const Worker = require('./Worker');
+// const Worker = require('./Worker');
 
 class UpgradeControllerAction {}
 
@@ -13,7 +13,7 @@ UpgradeControllerAction.run = (creep) => {
 		return;
 	}
 
-	const target = Game.getObjectById(actionInfo.sourceId);
+	const target = Game.getObjectById(actionInfo.controllerId);
 	if (actionInfo.upgrading) {
 		creep.upgradeController(target);
 		return;
@@ -25,7 +25,11 @@ UpgradeControllerAction.run = (creep) => {
 			actionInfo.upgrading = true;
 			break;
 		case ERR_NOT_IN_RANGE:
-			creep.moveTo(target, Worker.visualize);
+			creep.moveTo(target, {
+				visualizePathStyle: {
+					stroke: '#ffffff'
+				}
+			});
 			break;
 		default:
 			/*eslint-disable no-console */

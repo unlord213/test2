@@ -247,7 +247,7 @@ desc('CreepManager', () => {
 			roomInfo.upgradeCreepId = null;
 
 			const actionInfo = CreepManager._findEnergyTarget(creep, energyManager);
-			expect(actionInfo).to.eql(new UpgradeControllerActionInfo());
+			expect(actionInfo).to.eql(new UpgradeControllerActionInfo(controllerId));
 			expect(MemoryManager.getRoomInfo).to.have.been.calledWith(roomName);
 		});
 
@@ -258,7 +258,7 @@ desc('CreepManager', () => {
 			energyManager.findStructureNeedingEnergy.returns(structureId);
 
 			const actionInfo = CreepManager._findEnergyTarget(creep, energyManager);
-			expect(actionInfo).to.eql(new TransferActionInfo());
+			expect(actionInfo).to.eql(new TransferActionInfo(structureId));
 			expect(energyManager.findStructureNeedingEnergy).to.have.been.calledWith(energy, creepId);
 		});
 
@@ -267,7 +267,7 @@ desc('CreepManager', () => {
 			energyManager.findStructureNeedingEnergy.returns(undefined);
 
 			const actionInfo = CreepManager._findEnergyTarget(creep, energyManager);
-			expect(actionInfo).to.eql(new UpgradeControllerActionInfo());
+			expect(actionInfo).to.eql(new UpgradeControllerActionInfo(controllerId));
 		});
 	});
 });

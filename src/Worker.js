@@ -44,11 +44,16 @@ class Worker {
 		/*eslint-disable no-console */
 		console.log(creep.name + ' has nowhere to go');
 		const targets = creep.room.find(FIND_STRUCTURES, Worker.SpawnFilter);
-		creep.moveTo(targets[0], Worker.visualize);
+		creep.moveTo(targets[0], {
+			visualizePathStyle: {
+				stroke: '#ffffff'
+			}
+		});
 	}
 }
 Worker.Role = Roles.WORKER;
 
+// TODO: move this to different file to prevent circular references
 Worker.visualize = {
 	visualizePathStyle: {
 		stroke: '#ffffff'

@@ -81,7 +81,11 @@ desc('UpgradeControllerAction', () => {
 			expect(creep.upgradeController).to.have.been.calledWith(target);
 			expect(creep.memory.actionInfo.upgrading).to.eql(undefined);
 			// TODO: figure out why Worker.visualize isnt coming in
-			expect(creep.moveTo).to.have.been.calledWith(target, undefined);
+			expect(creep.moveTo).to.have.been.calledWith(target, {
+				visualizePathStyle: {
+					stroke: '#ffffff'
+				}
+			});
 			/*eslint-disable no-console */
 			expect(console.log).to.not.have.been.called;
 		});

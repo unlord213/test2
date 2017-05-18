@@ -3,7 +3,7 @@
 class TransferAction {}
 
 const IdleActionInfo = require('./IdleActionInfo');
-const Worker = require('./Worker');
+// const Worker = require('./Worker');
 
 TransferAction.run = (creep) => {
 	const actionInfo = creep.memory.actionInfo;
@@ -13,19 +13,26 @@ TransferAction.run = (creep) => {
 		return;
 	}
 
-	const target = Game.getObjectById(actionInfo.sourceId);
+	const target = Game.getObjectById(actionInfo.structureId);
 	if (actionInfo.transferring) {
-		creep.transfer(target);
+		creep.transfer(target, RESOURCE_ENERGY);
 		return;
 	}
 
-	const result = creep.transfer(target);
+	const result = creep.transfer(target, RESOURCE_ENERGY);
 	switch (result) {
 		case OK:
 			actionInfo.transferring = true;
 			break;
 		case ERR_NOT_IN_RANGE:
-			creep.moveTo(target, Worker.visualize);
+			creep.moveTo(target, {
+				visualizePathStyle: {
+					stroke: '#ffffff'
+				}
+			});
+			break;
+		case ERR_FULL:
+			creep.memory.actionInfo = new IdleActionInfo(_.sum(creep.carry) === creep.carryCapacity);
 			break;
 		default:
 			/*eslint-disable no-console */

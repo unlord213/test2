@@ -20,6 +20,8 @@ StructureManager.run = () => {
 					++roomInfo.numWorkers;
 				}
 				break;
+			case STRUCTURE_CONTROLLER:
+				break;
 			default:
 				/*eslint-disable no-console */
 				console.log('Unknown structure type: ' + structure.structureType);

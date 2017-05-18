@@ -1,7 +1,7 @@
 'use strict';
 
 const IdleActionInfo = require('./IdleActionInfo');
-const Worker = require('./Worker');
+// const Worker = require('./Worker');
 const MemoryManager = require('./MemoryManager');
 const EnergyManager = require('./EnergyManager');
 
@@ -37,7 +37,12 @@ HarvestAction.run = (creep) => {
 
 	const pos = new RoomPosition(accessPoint.pos.x, accessPoint.pos.y, creep.room.name);
 	// console.log('Worker', Object.getOwnPropertyNames(Worker));
-	creep.moveTo(pos, Worker.visualize);
+	// creep.moveTo(pos, Worker.visualize);
+	creep.moveTo(pos, {
+		visualizePathStyle: {
+			stroke: '#ffffff'
+		}
+	});
 };
 
 module.exports = HarvestAction;

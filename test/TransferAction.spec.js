@@ -51,7 +51,7 @@ desc('TransferAction', () => {
 			creep.memory.actionInfo.transferring = true;
 
 			TransferAction.run(creep);
-			expect(creep.transfer).to.have.been.calledWith(target);
+			expect(creep.transfer).to.have.been.calledWith(target, RESOURCE_ENERGY);
 			expect(creep.moveTo).to.not.have.been.called;
 			/*eslint-disable no-console */
 			expect(console.log).to.not.have.been.called;
@@ -64,7 +64,7 @@ desc('TransferAction', () => {
 
 			TransferAction.run(creep);
 
-			expect(creep.transfer).to.have.been.calledWith(target);
+			expect(creep.transfer).to.have.been.calledWith(target, RESOURCE_ENERGY);
 			expect(creep.memory.actionInfo.transferring).to.eql(true);
 			expect(creep.moveTo).to.not.have.been.called;
 			/*eslint-disable no-console */
@@ -81,7 +81,11 @@ desc('TransferAction', () => {
 			expect(creep.transfer).to.have.been.calledWith(target);
 			expect(creep.memory.actionInfo.transferring).to.eql(undefined);
 			// TODO: figure out why Worker.visualize isnt coming in
-			expect(creep.moveTo).to.have.been.calledWith(target, undefined);
+			expect(creep.moveTo).to.have.been.calledWith(target, {
+				visualizePathStyle: {
+					stroke: '#ffffff'
+				}
+			});
 			/*eslint-disable no-console */
 			expect(console.log).to.not.have.been.called;
 		});

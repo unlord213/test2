@@ -18,7 +18,7 @@ Reporter.report = () => {
 		}
 
 		console.log(Reporter.SPAN_ORANGE + roomName + Reporter.SPAN_CLOSE);
-		const spawns = roomInfo.energyStructures.spawns;
+		const spawns = roomInfo.energyStructureInfos.spawns;
 		const sources = roomInfo.sourceInfos;
 
 		console.log(Reporter.SPAN_GREEN + Object.keys(spawns).length + ' spawns' + Reporter.SPAN_CLOSE);
@@ -29,10 +29,11 @@ Reporter.report = () => {
 
 		console.log(Reporter.SPAN_GREEN + Object.keys(sources).length + ' sources' + Reporter.SPAN_CLOSE);
 		_.forIn(sources, (sourceInfo, sourceId) => {
-			const openAccessPoints = _.pickBy(sourceInfo.accessPoints, (accessPoint) => {
-				return 0 === Object.keys(accessPoint).length;
+			let openAccessPoints = 0;
+			_.forIn(sourceInfo.accessPoints, (accessPoint) => {
+				openAccessPoints += 0 === Object.keys(accessPoint).length;
 			});
-			console.log(sourceId + ': ' + Object.keys(openAccessPoints).length + ' open access points');
+			console.log(sourceId + ': ' + openAccessPoints + ' open access points');
 		});
 	}
 

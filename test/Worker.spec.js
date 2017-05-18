@@ -125,7 +125,11 @@ desc('Worker', () => {
 
 			worker._moveToSpawn();
 
-			expect(creep.moveTo).to.have.been.calledWith(spawn, Worker.visualize);
+			expect(creep.moveTo).to.have.been.calledWith(spawn, {
+				visualizePathStyle: {
+					stroke: '#ffffff'
+				}
+			});
 			/*eslint-disable no-console */
 			expect(console.log).to.have.been.calledWith(creep.name + ' has nowhere to go');
 		});

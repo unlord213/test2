@@ -9,7 +9,7 @@ desc('Reporter', () => {
 	describe('report', () => {
 		it('should output information', () => {
 			const roomInfo0 = {
-				energyStructures: {
+				energyStructureInfos: {
 					spawns: {
 						spawnId0_0: {
 							energy: 12,
@@ -44,7 +44,7 @@ desc('Reporter', () => {
 				}
 			};
 			const roomInfo2 = {
-				energyStructures: {
+				energyStructureInfos: {
 					spawns: {
 						spawnId2_0: {
 							energy: 16,

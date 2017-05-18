@@ -4,9 +4,10 @@ const ActionInfo = require('./ActionInfo');
 const Actions = require('./Actions');
 
 class TransferActionInfo extends ActionInfo {
-	constructor() {
+	constructor(structureId) {
 		super(TransferActionInfo.id);
-		this.transfering = false;
+		this.transferring = false;
+		this.structureId = structureId;
 	}
 }
 TransferActionInfo.id = Actions.TRANSFER;

@@ -7,11 +7,13 @@ const Actions = require('../src/Actions');
 
 desc('UpgradeControllerActionInfo', () => {
 	it('should set properties', () => {
-		const actionInfo = new UpgradeControllerActionInfo();
+		const controllerId = 'controllerId0';
+		const actionInfo = new UpgradeControllerActionInfo(controllerId);
 
 		expect(actionInfo).to.eql({
 			id: Actions.UPGRADE_CONTROLLER,
-			upgrading: false
+			upgrading: false,
+			controllerId: controllerId
 		});
 	});
 });

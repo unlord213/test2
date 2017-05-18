@@ -7,6 +7,7 @@ const Position = require('../src/Position');
 const SourceInfo = require('../src/SourceInfo');
 const EnergyStructureInfo = require('../src/EnergyStructureInfo');
 const AccessPoint = require('../src/AccessPoint');
+const Worker = require('../src/Worker');
 
 desc('MemoryManager', () => {
 	describe('initRoomInfos', () => {
@@ -268,6 +269,9 @@ desc('MemoryManager', () => {
 				creepName0: creep0,
 				creepName1: {
 					id: 'creepId1',
+					memory: {
+						role: Worker.Role
+					},
 					room: {
 						name: 'roomName0'
 					}
