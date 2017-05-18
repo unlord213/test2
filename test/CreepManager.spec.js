@@ -212,7 +212,6 @@ desc('CreepManager', () => {
 		let energyManager;
 		let creepId;
 		let energy;
-		let room;
 		let controllerId;
 		let roomInfo;
 		let roomName;
