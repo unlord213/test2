@@ -46,13 +46,13 @@ desc('EnergyManager', () => {
 				energyStructureInfos: energyStructureInfos
 			};
 
-			const structureId = new EnergyManager(roomInfo).findStructureNeedingEnergy(10, 'creepId0');
+			const structureId = new EnergyManager(roomInfo).findStructureNeedingEnergy(10, 'creepName0');
 			expect(structureId).to.eql('structureId1');
 		});
 
 		it('should add transfer', () => {
 			const transfers = {
-				creepId1: 10
+				creepName1: 10
 			};
 
 			const energyStructureInfos = {
@@ -70,11 +70,11 @@ desc('EnergyManager', () => {
 				energyStructureInfos: energyStructureInfos
 			};
 
-			new EnergyManager(roomInfo).findStructureNeedingEnergy(10, 'creepId0');
+			new EnergyManager(roomInfo).findStructureNeedingEnergy(10, 'creepName0');
 
 			const newTransfers = {
-				creepId1: 10,
-				creepId0: 10
+				creepName1: 10,
+				creepName0: 10
 			};
 			expect(energyStructureInfos.spawns['structureId0'].transfers).to.eql(newTransfers);
 		});
@@ -95,7 +95,7 @@ desc('EnergyManager', () => {
 				energyStructureInfos: energyStructureInfos
 			};
 
-			new EnergyManager(roomInfo).findStructureNeedingEnergy(10, 'creepId0');
+			new EnergyManager(roomInfo).findStructureNeedingEnergy(10, 'creepName0');
 
 			expect(energyStructureInfos.spawns['structureId0'].needsEnergy).to.eql(false);
 		});
@@ -113,7 +113,7 @@ desc('EnergyManager', () => {
 				energyStructureInfos: energyStructureInfos
 			};
 
-			const structureId = new EnergyManager(roomInfo).findStructureNeedingEnergy(10, 'creepId0');
+			const structureId = new EnergyManager(roomInfo).findStructureNeedingEnergy(10, 'creepName0');
 
 			expect(structureId).to.eql(undefined);
 		});
@@ -152,14 +152,14 @@ desc('EnergyManager', () => {
 				sourceId0: {
 					accessPoints: {
 						'0': {
-							creepId: 'creepId0'
+							creepName: 'creepName0'
 						}
 					}
 				},
 				sourceId1: {
 					accessPoints: {
 						'0': {
-							creepId: 'creepId1'
+							creepName: 'creepName1'
 						},
 						'1': {}
 					}
@@ -170,7 +170,7 @@ desc('EnergyManager', () => {
 				sourceInfos: sourceInfos
 			};
 
-			const accessPointInfo = new EnergyManager(roomInfo).getOpenAccessPoint('creepId3');
+			const accessPointInfo = new EnergyManager(roomInfo).getOpenAccessPoint('creepName3');
 			expect(accessPointInfo).to.eql({
 				sourceId: 'sourceId1',
 				accessPointId: '1'
@@ -190,10 +190,10 @@ desc('EnergyManager', () => {
 				sourceInfos: sourceInfos
 			};
 
-			new EnergyManager(roomInfo).getOpenAccessPoint('creepId0');
+			new EnergyManager(roomInfo).getOpenAccessPoint('creepName0');
 			expect(sourceInfos.sourceId0.accessPoints).to.eql({
 				'0': {
-					creepId: 'creepId0'
+					creepName: 'creepName0'
 				}
 			});
 		});

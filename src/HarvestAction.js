@@ -15,7 +15,7 @@ HarvestAction.run = (creep) => {
 	const accessPoint = energyManager.getAccessPoint(sourceId, actionInfo.accessPointId);
 
 	if (_.sum(creep.carry) === creep.carryCapacity) {
-		accessPoint.creepId = null;
+		accessPoint.creepName = null;
 		creep.memory.actionInfo = new IdleActionInfo(true);
 		return;
 	}
@@ -28,7 +28,7 @@ HarvestAction.run = (creep) => {
 	}
 
 	if (creep.pos.x === accessPoint.pos.x && creep.pos.y === accessPoint.pos.y) {
-		accessPoint.creepId = creep.name;
+		accessPoint.creepName = creep.name;
 		actionInfo.harvesting = true;
 
 		creep.harvest(source);

@@ -9,7 +9,7 @@ const Roles = require('./Roles');
 /**
  *	Memory = {
  *		roomInfos: {
- *			upgradeCreepId: 'creepId0',
+ *			upgradeCreepName: 'creepName0',
  *			roomName0: {
  *				energyStructureInfos: {
  *					spawns: {
@@ -18,7 +18,7 @@ const Roles = require('./Roles');
  *						 	energy: 42,
  *						  needsEnergy: true,
  *						  transfers: {
- *							 creepId0: 42
+ *							 creepName0: 42
  *						  }
  *					  }
  *					},
@@ -28,7 +28,7 @@ const Roles = require('./Roles');
  *						accessPoints: {
  *							'0': {
  *								pos: new Position(x0, y0),
- *							 	creepId: 'creep0'
+ *							 	creepName: 'creepName0'
  *						  }
  *					  }
  *					}
@@ -78,8 +78,8 @@ MemoryManager.updateSpawns = () => {
 			const structure = Game.getObjectById(structureId);
 			structureInfo.energy = structure.energy;
 			let sum = structureInfo.energy;
-			for (const creepId of Object.keys(structureInfo.transfers)) {
-				sum += structureInfo.transfers[creepId];
+			for (const creepName of Object.keys(structureInfo.transfers)) {
+				sum += structureInfo.transfers[creepName];
 			}
 
 			if (sum < structureInfo.energyCapacity) {
@@ -91,7 +91,6 @@ MemoryManager.updateSpawns = () => {
 
 MemoryManager.cleanup = () => {
 	_.forIn(Memory.creeps, (creep, creepName) => {
-		console.log(creepName, JSON.stringify(creep));
 		if (!Game.creeps[creepName]) {
 			/*eslint-disable no-console */
 			console.log('Clearing non-existing creep memory: ' + creepName);
@@ -101,22 +100,22 @@ MemoryManager.cleanup = () => {
 				--roomInfo.numWorkers;
 			}
 
-			if (roomInfo.upgradeCreepId === creepName) {
-				roomInfo.upgradeCreepId = null;
+			if (roomInfo.upgradeCreepName === creepName) {
+				roomInfo.upgradeCreepName = null;
 			}
 
 			_.forIn(roomInfo.energyStructureInfos.spawns, (spawn) => {
-				_.forIn(spawn.transfers, (transfer, creepId) => {
-					if (creepId === creepName) {
-						delete spawn.transfers[creepId];
+				_.forIn(spawn.transfers, (transfer, transferCreepName) => {
+					if (creepName === transferCreepName) {
+						delete spawn.transfers[creepName];
 					}
 				});
 			});
 
 			_.forIn(roomInfo.sourceInfos, (sourceInfo) => {
 				_.forIn(sourceInfo.accessPoints, (accessPoint) => {
-					if (accessPoint.creepId === creepName) {
-						accessPoint.creepId = null;
+					if (accessPoint.creepName === creepName) {
+						accessPoint.creepName = null;
 					}
 				});
 			});

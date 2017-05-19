@@ -11,7 +11,11 @@ TransferAction.run = (creep) => {
 
 	if (0 === creep.carry.energy) {
 		const roomInfo = MemoryManager.getRoomInfo(creep.room.name);
-		delete roomInfo.energyStructureInfos.spawns[actionInfo.structureId].transfers[creep.name];
+		const structureInfo = roomInfo.energyStructureInfos.spawns[actionInfo.structureId];
+		if (structureInfo) {
+			delete structureInfo.transfers[creep.name];
+		}
+
 		creep.memory.actionInfo = new IdleActionInfo(false);
 		return;
 	}
@@ -35,6 +39,7 @@ TransferAction.run = (creep) => {
 			});
 			break;
 		case ERR_FULL:
+			// TODO: test _.sum, creep.carry is an object
 			creep.memory.actionInfo = new IdleActionInfo(_.sum(creep.carry) === creep.carryCapacity);
 			break;
 		default:

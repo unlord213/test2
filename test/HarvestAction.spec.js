@@ -11,7 +11,7 @@ const EnergyManager = require('../src/EnergyManager');
 desc('HarvestAction', () => {
 	describe('run', () => {
 		let energyManager;
-		let creepId;
+		let creepName;
 		let creep;
 		let accessPoint;
 		let source;
@@ -19,11 +19,11 @@ desc('HarvestAction', () => {
 		let roomInfo;
 
 		beforeEach(() => {
-			creepId = 'creepId0';
+			creepName = 'creepName0';
 			roomName = 'roomName0';
 
 			creep = {
-				id: creepId,
+				name: creepName,
 				carryCapacity: 15,
 				carry: [],
 				room: {
@@ -71,7 +71,7 @@ desc('HarvestAction', () => {
 
 			HarvestAction.run(creep, energyManager);
 
-			expect(accessPoint.creepId).to.eql(null);
+			expect(accessPoint.creepName).to.eql(null);
 			expect(creep.memory.actionInfo).to.eql(new IdleActionInfo(true));
 			expect(Game.getObjectById).to.not.have.been.called;
 			expect(creep.harvest).to.not.have.been.called;
@@ -82,7 +82,7 @@ desc('HarvestAction', () => {
 			HarvestAction.run(creep, energyManager);
 
 			expect(creep.harvest).to.have.been.calledWith(source);
-			expect(accessPoint.creepId).to.eql(undefined);
+			expect(accessPoint.creepName).to.eql(undefined);
 		});
 
 		it('should start harvesting', () => {
@@ -95,7 +95,7 @@ desc('HarvestAction', () => {
 			HarvestAction.run(creep, energyManager);
 
 			expect(creep.harvest).to.have.been.calledWith(source);
-			expect(accessPoint.creepId).to.eql(creepId);
+			expect(accessPoint.creepName).to.eql(creepName);
 			expect(creep.moveTo).to.not.have.been.called;
 		});
 

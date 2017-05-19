@@ -1,9 +1,9 @@
 'use strict';
 
 class AccessPoint {
-	constructor(pos, creepId) {
+	constructor(pos, creepName) {
 		this.pos = pos;
-		this.creepId = creepId;
+		this.creepName = creepName;
 	}
 }
 

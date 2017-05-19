@@ -229,8 +229,8 @@ desc('MemoryManager', () => {
 								energyCapacity: 100,
 								energy: 40,
 								transfers: {
-									creepId0: 10,
-									creepId1: 10,
+									creepName0: 10,
+									creepName1: 10,
 								}
 							}
 						}
@@ -268,13 +268,8 @@ desc('MemoryManager', () => {
 			Memory.creeps = {
 				creepName0: creep0,
 				creepName1: {
-					id: 'creepId1',
-					memory: {
-						role: Worker.Role
-					},
-					room: {
-						name: 'roomName0'
-					}
+					role: Worker.Role,
+					room: 'roomName0'
 				},
 				creepName2: creep2
 			};
@@ -289,14 +284,29 @@ desc('MemoryManager', () => {
 			sandbox.stub(console, 'log');
 		});
 
-		it('should delete creep from memory', () => {
+		it('should decrease number of workers', () => {
+			Memory.roomInfos.roomName0.numWorkers = 42;
 			MemoryManager.cleanup();
+			expect(Memory.roomInfos.roomName0.numWorkers).to.eql(41);
+		});
 
-			expect(console.log).to.have.been.calledWith('Clearing non-existing creep memory: creepName1');
-			expect(Memory.creeps).to.eql({
-				creepName0: creep0,
-				creepName2: creep2
-			});
+		it('should not decrease number of workers', () => {
+			Memory.creeps.creepName1.role = 'foo';
+			Memory.roomInfos.roomName0.numWorkers = 42;
+			MemoryManager.cleanup();
+			expect(Memory.roomInfos.roomName0.numWorkers).to.eql(42);
+		});
+
+		it('should delete creep from upgrade creep', () => {
+			Memory.roomInfos.roomName0.upgradeCreepName = 'creepName1';
+			MemoryManager.cleanup();
+			expect(Memory.roomInfos.roomName0.upgradeCreepName).to.eql(null);
+		});
+
+		it('should delete creep from upgrade creep', () => {
+			Memory.roomInfos.roomName0.upgradeCreepName = 'creepName2';
+			MemoryManager.cleanup();
+			expect(Memory.roomInfos.roomName0.upgradeCreepName).to.eql('creepName2');
 		});
 
 		it('should delete creep from transfer', () => {
@@ -318,16 +328,16 @@ desc('MemoryManager', () => {
 				spawns: {
 					spawnId0: {
 						transfers: {
-							creepId0: transfer0_0,
-							creepId1: {},
-							creepId2: transfer0_2
+							creepName0: transfer0_0,
+							creepName1: {},
+							creepName2: transfer0_2
 						}
 					},
 					spawnId1: {
 						transfers: {
-							creepId0: transfer2_0,
-							creepId1: {},
-							creepId2: transfer2_2
+							creepName0: transfer2_0,
+							creepName1: {},
+							creepName2: transfer2_2
 						}
 					}
 				}
@@ -339,14 +349,14 @@ desc('MemoryManager', () => {
 				spawns: {
 					spawnId0: {
 						transfers: {
-							creepId0: transfer0_0,
-							creepId2: transfer0_2
+							creepName0: transfer0_0,
+							creepName2: transfer0_2
 						}
 					},
 					spawnId1: {
 						transfers: {
-							creepId0: transfer2_0,
-							creepId2: transfer2_2
+							creepName0: transfer2_0,
+							creepName2: transfer2_2
 						}
 					}
 				}
@@ -358,26 +368,26 @@ desc('MemoryManager', () => {
 				sourceId0: {
 					accessPoints: {
 						'0': {
-							creepId: 'creepId0',
+							creepName: 'creepName0',
 						},
 						'1': {
-							creepId: 'creepId1',
+							creepName: 'creepName1',
 						},
 						'2': {
-							creepId: 'creepId2',
+							creepName: 'creepName2',
 						},
 						'3': {
-							creepId: 'creepId1',
+							creepName: 'creepName1',
 						}
 					}
 				},
 				sourceId1: {
 					accessPoints: {
 						'9': {
-							creepId: 'creepId1'
+							creepName: 'creepName1'
 						},
 						'8': {
-							creepId: 'creepId0'
+							creepName: 'creepName0'
 						}
 					}
 				}
@@ -390,29 +400,39 @@ desc('MemoryManager', () => {
 				sourceId0: {
 					accessPoints: {
 						'0': {
-							creepId: 'creepId0',
+							creepName: 'creepName0',
 						},
 						'1': {
-							creepId: null,
+							creepName: null,
 						},
 						'2': {
-							creepId: 'creepId2',
+							creepName: 'creepName2',
 						},
 						'3': {
-							creepId: null,
+							creepName: null,
 						}
 					}
 				},
 				sourceId1: {
 					accessPoints: {
 						'9': {
-							creepId: null
+							creepName: null
 						},
 						'8': {
-							creepId: 'creepId0'
+							creepName: 'creepName0'
 						}
 					}
 				}
+			});
+		});
+
+		it('should delete creep from memory', () => {
+			MemoryManager.cleanup();
+
+			expect(console.log).to.have.been.calledWith('Clearing non-existing creep memory: creepName1');
+			expect(Memory.creeps).to.eql({
+				creepName0: creep0,
+				creepName2: creep2
 			});
 		});
 	});

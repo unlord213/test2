@@ -30,14 +30,14 @@ Reporter.report = () => {
 		_.forIn(sources, (sourceInfo, sourceId) => {
 			let openAccessPoints = 0;
 			_.forIn(sourceInfo.accessPoints, (accessPoint) => {
-				if (!accessPoint.creepId) {
+				if (!accessPoint.creepName) {
 					++openAccessPoints;
 				}
 			});
 			console.log(sourceId + ': ' + openAccessPoints + ' open access points');
 		});
 	}
-
+	//TODO: compact creeps into 5 harvesting, 2 transferring, etc.
 	console.log(Reporter.SPAN_ORANGE + 'Creeps' + Reporter.SPAN_CLOSE);
 	_.forIn(Game.creeps, (creep, creepName) => {
 		console.log(creepName + ': ' + JSON.stringify(creep.memory.actionInfo));

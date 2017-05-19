@@ -4,20 +4,27 @@ require('./lib/common.js');
 
 const UpgradeControllerAction = require('../src/UpgradeControllerAction');
 const IdleActionInfo = require('../src/IdleActionInfo');
+const MemoryManager = require('../src/MemoryManager');
 // const Worker = require('../src/Worker');
 
 desc('UpgradeControllerAction', () => {
-	let creepId;
+	let creepName;
 	let creep;
 	let target;
+	let roomInfo;
+	let roomName;
 
 	beforeEach(() => {
-		creepId = 'creepId0';
+		creepName = 'creepName0';
+		roomName = 'roomName0';
 
 		creep = {
-			id: creepId,
+			name: creepName,
 			carry: {
 				energy: 5
+			},
+			room: {
+				name: roomName
 			},
 			memory: {
 				actionInfo: {
@@ -34,6 +41,9 @@ desc('UpgradeControllerAction', () => {
 		sandbox.stub(Game, 'getObjectById').returns(target);
 
 		sandbox.stub(console, 'log');
+
+		roomInfo = {};
+		sandbox.stub(MemoryManager, 'getRoomInfo').returns(roomInfo);
 	});
 
 	describe('run', () => {
@@ -45,6 +55,16 @@ desc('UpgradeControllerAction', () => {
 			expect(creep.memory.actionInfo).to.eql(new IdleActionInfo(false));
 			expect(Game.getObjectById).to.not.have.been.called;
 			expect(creep.upgradeController).to.not.have.been.called;
+			expect(MemoryManager.getRoomInfo).to.have.been.calledWith(roomName);
+		});
+
+		it('should remove upgrade creep name on stop', () => {
+			roomInfo.upgradeCreepName = creepName;
+			creep.carry.energy = 0;
+
+			UpgradeControllerAction.run(creep);
+
+			expect(roomInfo.upgradeCreepName).to.eql(null);
 		});
 
 		it('should keep upgrading', () => {

@@ -9,10 +9,10 @@ desc('AccessPoint', () => {
 		const pos = {
 			foo: 'bar'
 		};
-		const creepId = 'creepId0';
-		const accessPoint = new AccessPoint(pos, creepId);
+		const creepName = 'creepName0';
+		const accessPoint = new AccessPoint(pos, creepName);
 		expect(accessPoint).to.eql({
-			creepId: creepId,
+			creepName: creepName,
 			pos: pos
 		});
 	});

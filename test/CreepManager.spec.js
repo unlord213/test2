@@ -44,7 +44,7 @@ desc('CreepManager', () => {
 			};
 
 			Game.creeps = {
-				creepId0: creep
+				creepName0: creep
 			};
 
 			worker = {
@@ -210,21 +210,23 @@ desc('CreepManager', () => {
 	describe('_findEnergyTarget', () => {
 		let creep;
 		let energyManager;
-		let creepId;
+		let creepName;
 		let energy;
 		let controllerId;
 		let roomInfo;
 		let roomName;
 
 		beforeEach(() => {
-			creepId = 'creepId0';
+			creepName = 'creepName0';
 			energy = 42;
 			controllerId = 'controllerId0';
 			roomName = 'roomName0';
 
 			creep = {
-				id: creepId,
-				energy: energy,
+				name: creepName,
+				carry: {
+					energy: energy
+				},
 				room: {
 					name: roomName,
 					controller: {
@@ -238,13 +240,37 @@ desc('CreepManager', () => {
 			};
 
 			roomInfo = {
-				upgradeCreepId: creepId
+				upgradeCreepName: creepName,
+				numWorkers: 5,
 			};
 			sandbox.stub(MemoryManager, 'getRoomInfo').returns(roomInfo);
 		});
 
+		it('should return transfer action when not enough workers', () => {
+			roomInfo.upgradeCreepName = creepName;
+			roomInfo.numWorkers = 2;
+
+			const structureId = 'structureId0';
+			energyManager.findStructureNeedingEnergy.returns(structureId);
+
+			const actionInfo = CreepManager._findEnergyTarget(creep, energyManager);
+			expect(actionInfo).to.eql(new TransferActionInfo(structureId));
+			expect(energyManager.findStructureNeedingEnergy).to.have.been.calledWith(energy, creepName);
+		});
+
+		it('should continue looking when not enough workers but no structure needs energy', () => {
+			roomInfo.upgradeCreepName = creepName;
+			roomInfo.numWorkers = 2;
+
+			energyManager.findStructureNeedingEnergy.returns(undefined);
+
+			const actionInfo = CreepManager._findEnergyTarget(creep, energyManager);
+			expect(actionInfo).to.eql(new UpgradeControllerActionInfo(controllerId));
+			expect(energyManager.findStructureNeedingEnergy.callCount).to.eql(2);
+		});
+
 		it('should return upgrade controller action when no creep is upgrading controller', () => {
-			roomInfo.upgradeCreepId = null;
+			roomInfo.upgradeCreepName = null;
 
 			const actionInfo = CreepManager._findEnergyTarget(creep, energyManager);
 			expect(actionInfo).to.eql(new UpgradeControllerActionInfo(controllerId));
@@ -252,18 +278,18 @@ desc('CreepManager', () => {
 		});
 
 		it('should return transfer action', () => {
-			roomInfo.upgradeCreepId = creepId;
+			roomInfo.upgradeCreepName = creepName;
 
 			const structureId = 'structureId0';
 			energyManager.findStructureNeedingEnergy.returns(structureId);
 
 			const actionInfo = CreepManager._findEnergyTarget(creep, energyManager);
 			expect(actionInfo).to.eql(new TransferActionInfo(structureId));
-			expect(energyManager.findStructureNeedingEnergy).to.have.been.calledWith(energy, creepId);
+			expect(energyManager.findStructureNeedingEnergy).to.have.been.calledWith(energy, creepName);
 		});
 
 		it('should return upgrade controller action when no structures need energy', () => {
-			roomInfo.upgradeCreepId = creepId;
+			roomInfo.upgradeCreepName = creepName;
 			energyManager.findStructureNeedingEnergy.returns(undefined);
 
 			const actionInfo = CreepManager._findEnergyTarget(creep, energyManager);

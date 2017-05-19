@@ -11,8 +11,8 @@ UpgradeControllerAction.run = (creep) => {
 
 	if (0 === creep.carry.energy) {
 		const roomInfo = MemoryManager.getRoomInfo(creep.room.name);
-		if (roomInfo.upgradeCreepId === creep.name) {
-			roomInfo.upgradeCreepId = null;
+		if (roomInfo.upgradeCreepName === creep.name) {
+			roomInfo.upgradeCreepName = null;
 		}
 		creep.memory.actionInfo = new IdleActionInfo(false);
 		return;

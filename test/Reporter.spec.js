@@ -20,7 +20,7 @@ desc('Reporter', () => {
 							energy: 14,
 							energyCapacity: 15,
 							transfers: {
-								creepId0_1: 1
+								creepName0_1: 1
 							}
 						}
 					}
@@ -35,7 +35,7 @@ desc('Reporter', () => {
 					sourceId0_1: {
 						accessPoints: {
 							'0': {
-								creepId0_1: 1
+								creepName: 'creepName0_1'
 							},
 							'1': {}
 						}
@@ -50,8 +50,8 @@ desc('Reporter', () => {
 							energy: 16,
 							energyCapacity: 17,
 							transfers: {
-								creepId2_0: 1,
-								creepId2_1: 2,
+								creepName2_0: 1,
+								creepName2_1: 2,
 							}
 						}
 					}
@@ -60,10 +60,10 @@ desc('Reporter', () => {
 					sourceId2_0: {
 						accessPoints: {
 							'0': {
-								creepId2_2: 1
+								creepName: 'creepName2_2'
 							},
 							'1': {
-								creepId2_3: 2
+								creepName: 'creepName2_3'
 							}
 						}
 					},
@@ -77,14 +77,14 @@ desc('Reporter', () => {
 				roomName2: {}
 			};
 			Game.creeps = {
-				creepId42: {
+				creepName42: {
 					memory: {
 						actionInfo: {
 							foo: 'bar'
 						}
 					}
 				},
-				creepId43: {
+				creepName43: {
 					memory: {
 						actionInfo: {
 							bar: 'foo'
@@ -122,8 +122,8 @@ desc('Reporter', () => {
 			expect(console.log.getCall(13).args[0]).to.eql('sourceId2_0: 0 open access points');
 
 			expect(console.log.getCall(14).args[0]).to.eql(Reporter.SPAN_ORANGE + 'Creeps' + Reporter.SPAN_CLOSE);
-			expect(console.log.getCall(15).args[0]).to.eql('creepId42: {"foo":"bar"}');
-			expect(console.log.getCall(16).args[0]).to.eql('creepId43: {"bar":"foo"}');
+			expect(console.log.getCall(15).args[0]).to.eql('creepName42: {"foo":"bar"}');
+			expect(console.log.getCall(16).args[0]).to.eql('creepName43: {"bar":"foo"}');
 
 			expect(console.log).to.not.have.been.calledWith(Reporter.SPAN_ORANGE + 'roomName1' + Reporter.SPAN_CLOSE);
 		});

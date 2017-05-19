@@ -58,8 +58,15 @@ CreepManager._findEnergyTarget = (creep, energyManager) => {
 	const room = creep.room;
 	const roomInfo = MemoryManager.getRoomInfo(room.name);
 
-	if (!roomInfo.upgradeCreepId) {
-		roomInfo.upgradeCreepId = creep.name;
+	if (roomInfo.numWorkers < 3) {
+		const structureId = energyManager.findStructureNeedingEnergy(creep.carry.energy, creep.name);
+		if (structureId) {
+			return new TransferActionInfo(structureId);
+		}
+	}
+
+	if (!roomInfo.upgradeCreepName) {
+		roomInfo.upgradeCreepName = creep.name;
 		return new UpgradeControllerActionInfo(room.controller.id);
 	}
 

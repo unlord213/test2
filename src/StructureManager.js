@@ -19,8 +19,7 @@ StructureManager.run = () => {
 					});
 
 					if (_.isString(creepName)) {
-						// /*eslint-disable no-console */
-						// console.log('Created creep ' + creepName);
+						/*eslint-disable no-console */
 						++roomInfo.numWorkers;
 					}
 				}

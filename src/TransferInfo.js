@@ -1,9 +1,9 @@
 'use strict';
 
 class TransferInfo {
-	constructor(creepId, energy) {
-		this.creepId = creepId,
-		this.energy = energy;
+	constructor(creepName, energy) {
+		this.creepName = creepName,
+			this.energy = energy;
 	}
 }
 

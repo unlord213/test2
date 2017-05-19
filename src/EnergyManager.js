@@ -6,17 +6,17 @@ class EnergyManager {
 		this.sourceInfos = roomInfo.sourceInfos;
 	}
 
-	findStructureNeedingEnergy(energy, creepId) {
+	findStructureNeedingEnergy(energy, creepName) {
 		const structureInfos = this.energyStructureInfos.spawns;
 		for (const structureId of Object.keys(structureInfos)) {
 			const structureInfo = structureInfos[structureId];
 
 			if (structureInfo.needsEnergy) {
-				structureInfo.transfers[creepId] = energy;
+				structureInfo.transfers[creepName] = energy;
 
 				let sum = structureInfo.energy + energy;
-				for (const transferCreepId of Object.keys(structureInfo.transfers)) {
-					sum += structureInfo.transfers[transferCreepId];
+				for (const transferCreepName of Object.keys(structureInfo.transfers)) {
+					sum += structureInfo.transfers[transferCreepName];
 				}
 
 				if (sum >= structureInfo.energyCapacity) {
@@ -32,14 +32,14 @@ class EnergyManager {
 		return this.sourceInfos[sourceId].accessPoints[accessPointId];
 	}
 
-	getOpenAccessPoint(creepId) {
+	getOpenAccessPoint(creepName) {
 		const sourceInfos = this.sourceInfos;
 		for (const sourceId of Object.keys(sourceInfos)) {
 			const accessPoints = sourceInfos[sourceId].accessPoints;
 
 			for (const accessPointId of Object.keys(accessPoints)) {
-				if (!accessPoints[accessPointId].creepId) {
-					accessPoints[accessPointId].creepId = creepId;
+				if (!accessPoints[accessPointId].creepName) {
+					accessPoints[accessPointId].creepName = creepName;
 					return {
 						sourceId: sourceId,
 						accessPointId: accessPointId
